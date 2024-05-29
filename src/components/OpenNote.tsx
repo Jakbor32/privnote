@@ -1,87 +1,126 @@
+import React, { useState, useEffect } from "react";
 import { FaGithub } from "react-icons/fa";
-import { useState } from "react";
+import { useParams } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import supabase from "../../utils/supabaseConfig";
+import { useDarkMode } from "./DarkMode";
+import CheckNoteExpiration from "./CheckNoteExpiration";
 
-interface OpenNoteProps {
-  darkMode: boolean;
+interface NoteParams {
+  noteId: string;
 }
 
-function OpenNote({ darkMode }: OpenNoteProps) {
-  const [textAreaValue, setTextAreaValue] = useState("login \npassword");
+const OpenNote: React.FC = () => {
+  const { noteId } = useParams<NoteParams>();
+  const { darkMode } = useDarkMode();
+  const [noteContent, setNoteContent] = useState<string>("");
+  const [revealed, setRevealed] = useState<boolean>(false);
+  const [noteNotFound, setNoteNotFound] = useState<boolean>(false);
+  const [isExpired, setIsExpired] = useState<boolean>(false);
 
-  const notify = () =>
-    toast.success("Copied!", {
-      style: {
-        borderRadius: "10px",
-        background: darkMode ? "#333" : "#ABA",
-        color: "#fff",
-      },
-    });
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(textAreaValue);
-    notify();
+  useEffect(() => {
+    if (noteId) {
+      if (!isExpired) {
+        loadNoteContent(noteId);
+      } else {
+        setNoteNotFound(true);
+      }
+    }
+  }, [noteId, isExpired]);
+
+  const loadNoteContent = async (noteId: string): Promise<void> => {
+    try {
+      const { data, error } = await supabase
+        .from("privnote")
+        .select("value")
+        .eq("note_uid", noteId)
+        .single();
+
+      if (error) {
+        setNoteNotFound(true);
+      } else {
+        setNoteContent(data.value);
+      }
+    } catch (error) {
+      console.error(error.message);
+    }
   };
 
-  return (
-    <div
-      className={`h-screen flex flex-col items-center w-full gap-4 p-4 ${
-        darkMode ? "bg-[#15202B]" : "bg-[#7899A6]"
-      }`}
+  const copyToClipboard = (): void => {
+    navigator.clipboard.writeText(noteContent);
+    toast.success("Note content copied to clipboard!");
+  };
+
+  const revealNote = async (): Promise<void> => {
+    try {
+      setRevealed(true);
+      await supabase.from("privnote").delete().eq("note_uid", noteId);
+    } catch (error) {
+      console.error(error.message);
+      toast.error("Failed to reveal note!");
+    }
+  };
+
+  const revealButton = (
+    <button
+      onClick={revealNote}
+      className="absolute inset-0 flex items-center justify-center w-full h-full text-white transition-opacity bg-black bg-opacity-50 hover:bg-opacity-70"
     >
-      <h1
-        className={`mb-4 text-2xl font-bold text-center ${
-          darkMode ? "text-white" : "text-black"
-        }`}
-      >
-        Privnote
-      </h1>
-      <textarea
-        readOnly
-        className={`w-4/5 md:w-3/5 xl:w-2/5 p-4 h-1/4 ${
-          darkMode
-            ? "bg-[#465555] border-[#465555] text-gray-200"
-            : "bg-[#e7ed67] border-[#e7ed67]"
-        } resize focus:outline-none  border-4 border-double`}
-        value={textAreaValue}
-        onChange={(e) => setTextAreaValue(e.target.value)}
-      />
-      <div className="flex justify-center gap-6 mb-4">
-        <button
-          className={`px-6 py-2 font-semibold rounded shadow  ${
-            darkMode
-              ? "text-white bg-stone-800 border border-gray-800  hover:bg-stone-900"
-              : "text-black bg-white hover:bg-stone-200"
-          }`}
-          onClick={copyToClipboard}
-        >
-          Copy
-        </button>
-        <button
-          className={`px-6 py-2 font-semibold rounded shadow  ${
-            darkMode
-              ? "text-white bg-red-950  hover:opacity-85"
-              : "text-white bg-red-900  hover:opacity-85"
-          }`}
-        >
-          Destroy Note
-        </button>
-      </div>
-      <footer
-        className={`fixed text-center bottom-1 flex items-center gap-2 ${
-          darkMode ? "text-gray-500" : "text-gray-300"
-        }`}
-      >
-        <a
-          className="hover:text-white hover:animate-pulse"
-          href="https://github.com/Jakbor32"
-        >
-          <FaGithub size="20" />
-        </a>
+      <span className="text-xl font-semibold">Reveal Note</span>
+    </button>
+  );
+
+  const textArea = (
+    <textarea
+      readOnly
+      className={`w-full sm:w-4/5 md:w-3/5 xl:w-2/5 p-4 h-1/4 ${
+        darkMode ? "bg-[#465555] border-[#465555] text-gray-200" : "bg-[#e7ed67] border-[#e7ed67]"
+      }`}
+      value={noteContent}
+    />
+  );
+
+  return (
+    <div className={`h-screen flex flex-col items-center w-full gap-4 p-4 ${darkMode ? "bg-[#15202B] text-white" : "bg-[#7899A6] text-black"}`}>
+      <h1 className="mb-4 text-2xl font-bold text-center">Privnote</h1>
+      <CheckNoteExpiration noteId={noteId} setExpired={setIsExpired} />
+      {revealed ? (
+        noteNotFound ? (
+          <div className="text-center">
+            <p className="pb-4 text-gray-300 ">Note not found or has expired.</p>
+            <a href="http://localhost:5173" className="text-gray-300 underline ">Create new note.</a>
+          </div>
+        ) : (
+          <>
+            {textArea}
+            <div className="flex justify-center gap-6 mb-4">
+              <button
+                className={`px-6 py-2 font-semibold rounded shadow ${
+                  darkMode ? "text-white bg-stone-800 border border-gray-800 hover:bg-stone-900" : "text-black bg-white hover:bg-stone-200"
+                }`}
+                onClick={copyToClipboard}
+              >
+                Copy
+              </button>
+            </div>
+          </>
+        )
+      ) : (
+        <>
+          <div className="relative w-full p-4 sm:w-4/5 md:w-3/5 xl:w-2/5 h-1/4">
+            <div className="absolute inset-0 bg-blur" />
+            {revealButton}
+            <p className="text-center text-gray-300 bottom-2 left-2 animate-pulse">You can only view this note once.</p>
+          </div>
+        </>
+      )}
+      <footer className={`fixed text-center bottom-1 flex items-center gap-2 ${darkMode ? "text-gray-500" : "text-gray-300"}`}>
+        <a className="hover:text-white hover:animate-pulse" href="https://github.com/Jakbor32"><FaGithub size="20" /></a>
         <p>© 2024 Jakub Borowy</p>
       </footer>
       <Toaster position="top-left" reverseOrder={true} />
     </div>
   );
-}
+};
 
 export default OpenNote;

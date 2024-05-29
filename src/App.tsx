@@ -1,16 +1,18 @@
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import CreateNote from "./components/CreateNote";
-import DarkMode from "./components/DarkMode";
 import OpenNote from "./components/OpenNote";
-import LinkToNote from "./components/LinkToNote";
+import DarkMode from "./components/DarkMode";
+
 function App() {
   return (
-    <>
-      <DarkMode>
-        <CreateNote />
-        <LinkToNote />
-        <OpenNote />
-      </DarkMode>
-    </>
+    <DarkMode>
+      <Router>
+        <Routes>
+          <Route path="/" element={<CreateNote />} />
+          <Route path=":noteId" element={<OpenNote />} />
+        </Routes>
+      </Router>
+    </DarkMode>
   );
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { FaMoon, FaSun } from "react-icons/fa";
 
 interface DarkModeProps {
@@ -6,8 +6,20 @@ interface DarkModeProps {
   children: React.ReactNode;
 }
 
-function DarkMode({ defaultDarkMode = false, children }: DarkModeProps) {
-  const [darkMode, setDarkMode] = useState(defaultDarkMode);
+interface DarkModeContextType {
+  darkMode: boolean;
+  toggleDarkMode: () => void;
+}
+
+const DarkModeContext = React.createContext<DarkModeContextType>({
+  darkMode: false,
+  toggleDarkMode: () => {},
+});
+
+export const useDarkMode = (): DarkModeContextType => useContext(DarkModeContext);
+
+function DarkModeProvider({ children }: { children: React.ReactNode }) {
+  const [darkMode, setDarkMode] = useState<boolean>(false);
 
   useEffect(() => {
     const savedDarkMode = localStorage.getItem("darkMode");
@@ -25,19 +37,32 @@ function DarkMode({ defaultDarkMode = false, children }: DarkModeProps) {
   };
 
   return (
-    <div>
-      <div className="fixed right-0 flex justify-end p-4">
-        <button onClick={toggleDarkMode} className="text-2xl">
-          {darkMode ? <FaSun color="white" /> : <FaMoon />}
-        </button>
+    <DarkModeContext.Provider value={{ darkMode, toggleDarkMode }}>
+      {children}
+    </DarkModeContext.Provider>
+  );
+}
+
+function DarkModeToggle() {
+  const { darkMode, toggleDarkMode } = useDarkMode();
+
+  return (
+    <button onClick={toggleDarkMode} className="text-2xl">
+      {darkMode ? <FaSun color="white" /> : <FaMoon />}
+    </button>
+  );
+}
+
+function DarkMode({ defaultDarkMode = false, children }: DarkModeProps) {
+  return (
+    <DarkModeProvider>
+      <div>
+        <div className="fixed right-0 flex justify-end p-4">
+          <DarkModeToggle />
+        </div>
+        {children}
       </div>
-      {React.Children.map(children, (child) => {
-        if (React.isValidElement(child)) {
-          return React.cloneElement(child, { darkMode });
-        }
-        return child;
-      })}
-    </div>
+    </DarkModeProvider>
   );
 }
 
