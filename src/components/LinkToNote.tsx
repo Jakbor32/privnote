@@ -77,7 +77,7 @@ function LinkToNote({ noteId }: LinkToNoteProps): JSX.Element {
           darkMode
             ? "bg-[#465555] border-[#465555] text-gray-200"
             : "bg-[#e7ed67] border-[#e7ed67]"
-        } focus:outline-none border-4 border-double`}
+        } focus:outline-none border-4`}
         value={link}
       />
       <div className="flex justify-center gap-6 mb-4">

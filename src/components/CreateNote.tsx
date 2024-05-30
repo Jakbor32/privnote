@@ -4,6 +4,7 @@ import supabase from "../../utils/supabaseConfig";
 import toast, { Toaster, useToasterStore } from "react-hot-toast";
 import LinkToNote from "./LinkToNote";
 import { useDarkMode } from "./DarkMode";
+import CheckNoteExpiration from "./CheckNoteExpiration";
 
 interface NoteData {
   note_uid: string;
@@ -52,6 +53,7 @@ function CreateNote(): JSX.Element {
 
   return (
     <div>
+      <CheckNoteExpiration />
       {isNoteCreated ? (
         <LinkToNote noteId={noteId} />
       ) : (
@@ -72,7 +74,7 @@ function CreateNote(): JSX.Element {
               darkMode
                 ? "bg-[#465555] border-[#465555] text-gray-200"
                 : "bg-[#e7ed67] border-[#e7ed67]"
-            } resize focus:outline-none border-4 border-double`}
+            } resize focus:outline-none border-4`}
             placeholder="Write your note here..."
             value={note}
             onChange={(e) => setNote(e.target.value)}

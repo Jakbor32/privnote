@@ -2,3 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+    transition: background-color .5s ease-in-out;
+}

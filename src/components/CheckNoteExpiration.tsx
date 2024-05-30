@@ -1,43 +1,69 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import supabase from "../../utils/supabaseConfig";
 
-interface CheckNoteExpirationProps {
-  noteId: string;
-  setExpired: React.Dispatch<React.SetStateAction<boolean>>;
+interface Note {
+  note_uid: string;
+  created_at: string;
 }
 
-function CheckNoteExpiration({ noteId, setExpired }: CheckNoteExpirationProps) {
-  useEffect(function () {
-    async function checkExpiration() {
+function CheckNoteExpiration() {
+  useEffect(() => {
+    async function fetchNotes() {
       try {
-        const { data, error } = await supabase
+        const { data: notes, error } = await supabase
           .from("privnote")
-          .select("created_at")
-          .eq("note_uid", noteId)
-          .single();
+          .select("note_uid, created_at");
+
         if (error) {
-          console.error(error.message);
+          console.error("Error:", error.message);
           return;
         }
 
-        const createdAt = new Date(data.created_at);
-        const currentTime = new Date();
-        const diffInMinutes = (currentTime.getTime() - createdAt.getTime()) / (1000 * 60);
-        if (diffInMinutes > 600) {
-          setExpired(true);
-          await supabase.from("privnote").delete().eq("note_uid", noteId);
+        if (notes && notes.length > 0) {
+          checkExpirationNotes(notes);
         }
       } catch (error) {
-        if (error instanceof Error) {
-          console.error(error.message);
-        } else {
-          console.error('Error', error);
-        }
+        console.error("Error:", error instanceof Error ? error.message : error);
       }
     }
 
-    checkExpiration();
-  }, [setExpired, noteId]);
+    async function checkExpirationNotes(notes: Note[]) {
+      const now = new Date();
+      const noteLifeTime = 36000000;
+      const expiredNotes: Note[] = [];
+
+      notes.forEach(note => {
+        const createdAt = new Date(note.created_at);
+        const difference = now.getTime() - createdAt.getTime();
+
+        if (difference > noteLifeTime) {
+          expiredNotes.push(note);
+        }
+      });
+
+      if (expiredNotes.length > 0) {
+        deleteExpiredNotes(expiredNotes);
+      }
+    }
+
+    async function deleteExpiredNotes(expiredNotes: Note[]) {
+      try {
+        const noteIds = expiredNotes.map(note => note.note_uid);
+        const { error } = await supabase
+          .from("privnote")
+          .delete()
+          .in("note_uid", noteIds);
+
+        if (error) {
+          console.error("Error:", error.message);
+        }
+      } catch (error) {
+        console.error("Error:", error instanceof Error ? error.message : error);
+      }
+    }
+
+    fetchNotes();
+  }, []);
 
   return null;
 }
