@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaGithub,  } from "react-icons/fa";
+import { FaGithub } from "react-icons/fa";
 import supabase from "../../utils/supabaseConfig";
 import toast, { Toaster, useToasterStore } from "react-hot-toast";
 import LinkToNote from "./LinkToNote";
@@ -7,6 +7,7 @@ import { useDarkMode } from "./DarkMode";
 
 interface NoteData {
   note_uid: string;
+  value: string;
 }
 
 function CreateNote(): JSX.Element {
@@ -15,12 +16,14 @@ function CreateNote(): JSX.Element {
   const [noteId, setNoteId] = useState<string>("");
   const [isNoteCreated, setIsNoteCreated] = useState<boolean>(false);
 
-  const notify = (): void => toast.error("Note cannot be empty");
+  const notify = (): void => {
+    toast.error("Note cannot be empty");
+  };
 
   const handleCreateNote = async (): Promise<void> => {
     if (note.trim()) {
       const { data, error } = await supabase
-        .from<NoteData>("privnote")
+        .from("privnote")
         .insert([{ value: note }])
         .select("note_uid")
         .single();
@@ -28,7 +31,7 @@ function CreateNote(): JSX.Element {
       if (error) {
         console.error(error);
       } else {
-        setNoteId(data!.note_uid);
+        setNoteId((data as NoteData).note_uid);
         setIsNoteCreated(true);
         setNote("");
       }

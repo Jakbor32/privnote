@@ -6,6 +6,7 @@ import { useDarkMode } from "./DarkMode";
 
 interface LinkToNoteProps {
   noteId: string;
+  
 }
 
 function LinkToNote({ noteId }: LinkToNoteProps): JSX.Element {
@@ -16,7 +17,7 @@ function LinkToNote({ noteId }: LinkToNoteProps): JSX.Element {
     setLink(`http://localhost:5173/${noteId}`);
   }, [noteId]);
 
-  const notify = (): void =>
+  const notify = () =>
     toast.success("Link copied!", {
       style: {
         borderRadius: "10px",
@@ -34,16 +35,21 @@ function LinkToNote({ noteId }: LinkToNoteProps): JSX.Element {
       if (error) {
         throw new Error(error.message);
       }
-        toast.success("Note destroyed successfully!", {
-          style: {
-            borderRadius: "10px",
-            background: darkMode ? "#333" : "#ABA",
-            color: "#fff",
-          },
-        });
-    } catch (error) {
-      console.error(error.message);
-      toast.error("Failed to destroy note!");
+      toast.success("Note destroyed successfully!", {
+        style: {
+          borderRadius: "10px",
+          background: darkMode ? "#333" : "#ABA",
+          color: "#fff",
+        },
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        toast.error("Failed to destroy note!");
+      } else {
+        console.error("Error:", err);
+        toast.error("Error occurred!");
+      }
     }
   };
 

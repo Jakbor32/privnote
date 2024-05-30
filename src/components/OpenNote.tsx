@@ -6,12 +6,8 @@ import supabase from "../../utils/supabaseConfig";
 import { useDarkMode } from "./DarkMode";
 import CheckNoteExpiration from "./CheckNoteExpiration";
 
-interface NoteParams {
-  noteId: string;
-}
-
 const OpenNote: React.FC = () => {
-  const { noteId } = useParams<NoteParams>();
+  const { noteId } = useParams<Record<string, string | undefined>>();
   const { darkMode } = useDarkMode();
   const [noteContent, setNoteContent] = useState<string>("");
   const [revealed, setRevealed] = useState<boolean>(false);
@@ -39,10 +35,14 @@ const OpenNote: React.FC = () => {
       if (error) {
         setNoteNotFound(true);
       } else {
-        setNoteContent(data.value);
+        setNoteContent(data?.value ?? "");
       }
     } catch (error) {
-      console.error(error.message);
+      if (error instanceof Error) {
+        console.error(error.message);
+      } else {
+        console.error("Error:", error);
+      }
     }
   };
 
@@ -54,9 +54,15 @@ const OpenNote: React.FC = () => {
   const revealNote = async (): Promise<void> => {
     try {
       setRevealed(true);
-      await supabase.from("privnote").delete().eq("note_uid", noteId);
+      if (noteId) {
+        await supabase.from("privnote").delete().eq("note_uid", noteId);
+      }
     } catch (error) {
-      console.error(error.message);
+      if (error instanceof Error) {
+        console.error(error.message);
+      } else {
+        console.error("Error:", error);
+      }
       toast.error("Failed to reveal note!");
     }
   };
@@ -83,7 +89,7 @@ const OpenNote: React.FC = () => {
   return (
     <div className={`h-screen flex flex-col items-center w-full gap-4 p-4 ${darkMode ? "bg-[#15202B] text-white" : "bg-[#7899A6] text-black"}`}>
       <h1 className="mb-4 text-2xl font-bold text-center">Privnote</h1>
-      <CheckNoteExpiration noteId={noteId} setExpired={setIsExpired} />
+      <CheckNoteExpiration noteId={noteId ?? ""} setExpired={setIsExpired} />
       {revealed ? (
         noteNotFound ? (
           <div className="text-center">

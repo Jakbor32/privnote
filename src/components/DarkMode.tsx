@@ -18,8 +18,8 @@ const DarkModeContext = React.createContext<DarkModeContextType>({
 
 export const useDarkMode = (): DarkModeContextType => useContext(DarkModeContext);
 
-function DarkModeProvider({ children }: { children: React.ReactNode }) {
-  const [darkMode, setDarkMode] = useState<boolean>(false);
+function DarkModeProvider({ defaultDarkMode = false, children }: DarkModeProps) {
+  const [darkMode, setDarkMode] = useState<boolean>(defaultDarkMode);
 
   useEffect(() => {
     const savedDarkMode = localStorage.getItem("darkMode");
@@ -55,7 +55,7 @@ function DarkModeToggle() {
 
 function DarkMode({ defaultDarkMode = false, children }: DarkModeProps) {
   return (
-    <DarkModeProvider>
+    <DarkModeProvider defaultDarkMode={defaultDarkMode}>
       <div>
         <div className="fixed right-0 flex justify-end p-4">
           <DarkModeToggle />

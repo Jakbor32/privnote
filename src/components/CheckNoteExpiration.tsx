@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import supabase from "../../utils/supabaseConfig";
 
 interface CheckNoteExpirationProps {
@@ -6,9 +6,9 @@ interface CheckNoteExpirationProps {
   setExpired: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const CheckNoteExpiration: React.FC<CheckNoteExpirationProps> = ({ noteId, setExpired }) => {
-  useEffect(() => {
-    const checkExpiration = async () => {
+function CheckNoteExpiration({ noteId, setExpired }: CheckNoteExpirationProps) {
+  useEffect(function () {
+    async function checkExpiration() {
       try {
         const { data, error } = await supabase
           .from("privnote")
@@ -24,18 +24,22 @@ const CheckNoteExpiration: React.FC<CheckNoteExpirationProps> = ({ noteId, setEx
         const currentTime = new Date();
         const diffInMinutes = (currentTime.getTime() - createdAt.getTime()) / (1000 * 60);
         if (diffInMinutes > 600) {
-          setExpired(true); 
+          setExpired(true);
           await supabase.from("privnote").delete().eq("note_uid", noteId);
         }
       } catch (error) {
-        console.error(error.message);
+        if (error instanceof Error) {
+          console.error(error.message);
+        } else {
+          console.error('Error', error);
+        }
       }
-    };
+    }
 
     checkExpiration();
   }, [setExpired, noteId]);
 
   return null;
-};
+}
 
 export default CheckNoteExpiration;
