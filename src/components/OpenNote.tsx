@@ -94,7 +94,7 @@ const OpenNote: React.FC = () => {
         noteNotFound ? (
           <div className="text-center">
             <p className="pb-4 text-gray-300 ">Note not found or has expired.</p>
-            <a href="http://localhost:5173" className="text-gray-300 underline ">Create new note.</a>
+            <a href="https://privnote-app.vercel.app" className="text-gray-300 underline ">Create new note.</a>
           </div>
         ) : (
           <>
