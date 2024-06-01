@@ -12,7 +12,8 @@ PrivNote allows users to create quick notes that automatically delete themselves
 - **React**
 - **Vite**
 - **Tailwind CSS**
+- **TypeScript**
 
 ### Live App
 
-Soon...
+[(https://privnote-app.vercel.app/)](https://privnote-app.vercel.app/)
