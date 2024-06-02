@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaGithub } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import toast, { Toaster, useToasterStore  } from "react-hot-toast";
 import supabase from "../../utils/supabaseConfig";
 import { useDarkMode } from "./DarkMode";
 
@@ -44,8 +44,27 @@ const OpenNote: React.FC = () => {
 
   const copyToClipboard = (): void => {
     navigator.clipboard.writeText(noteContent);
-    toast.success("Note content copied to clipboard!");
+    toast.success("Note content copied to clipboard!", {
+      style: {
+        borderRadius: "10px",
+        background: darkMode ? "#333" : "#ABA",
+        color: "#fff",
+      },
+    });
   };
+
+  // Toast Limiter
+  
+  const TOAST_LIMIT = 1;
+  const { toasts } = useToasterStore();
+  useEffect(() => {
+    toasts
+      .filter((t) => t.visible)
+      .filter((_, i) => i >= TOAST_LIMIT)
+      .forEach((t) => toast.dismiss(t.id));
+  }, [toasts]);
+
+    
 
   const revealNote = async (): Promise<void> => {
     try {
