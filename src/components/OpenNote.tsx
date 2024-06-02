@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaGithub } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-import toast, { Toaster, useToasterStore  } from "react-hot-toast";
+import toast, { Toaster, useToasterStore } from "react-hot-toast";
 import supabase from "../../utils/supabaseConfig";
 import { useDarkMode } from "./DarkMode";
 
@@ -11,7 +11,7 @@ const OpenNote: React.FC = () => {
   const [noteContent, setNoteContent] = useState<string>("");
   const [revealed, setRevealed] = useState<boolean>(false);
   const [noteNotFound, setNoteNotFound] = useState<boolean>(false);
- 
+
   useEffect(() => {
     if (noteId) {
       loadNoteContent(noteId);
@@ -19,7 +19,7 @@ const OpenNote: React.FC = () => {
       setNoteNotFound(true);
     }
   }, [noteId]);
-  
+
   const loadNoteContent = async (noteId: string): Promise<void> => {
     try {
       const { data, error } = await supabase
@@ -54,7 +54,7 @@ const OpenNote: React.FC = () => {
   };
 
   // Toast Limiter
-  
+
   const TOAST_LIMIT = 1;
   const { toasts } = useToasterStore();
   useEffect(() => {
@@ -63,8 +63,6 @@ const OpenNote: React.FC = () => {
       .filter((_, i) => i >= TOAST_LIMIT)
       .forEach((t) => toast.dismiss(t.id));
   }, [toasts]);
-
-    
 
   const revealNote = async (): Promise<void> => {
     try {
@@ -85,8 +83,9 @@ const OpenNote: React.FC = () => {
   const revealButton = (
     <button
       onClick={revealNote}
-      className="absolute inset-0 flex items-center justify-center w-full h-full text-white transition-opacity bg-black bg-opacity-50 hover:bg-opacity-70"
+      className="absolute inset-0 flex items-center justify-center w-full h-full overflow-hidden text-white transition-opacity bg-black bg-opacity-50 hover:bg-opacity-70"
     >
+      <div className="absolute p-32 rounded-full hover:border-2 animate-ping"></div>
       <span className="text-xl font-semibold">Reveal Note</span>
     </button>
   );
