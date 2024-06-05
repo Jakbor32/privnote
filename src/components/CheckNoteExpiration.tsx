@@ -29,18 +29,34 @@ function CheckNoteExpiration() {
 
     async function checkExpirationNotes(notes: Note[]) {
       const now = new Date();
-      const noteLifeTime = 36000000;
       const expiredNotes: Note[] = [];
-
-      notes.forEach(note => {
-        const createdAt = new Date(note.created_at);
-        const difference = now.getTime() - createdAt.getTime();
-
-        if (difference > noteLifeTime) {
-          expiredNotes.push(note);
+    
+      for (const note of notes) {
+        try {
+          const { data, error } = await supabase
+            .from("privnote")
+            .select("note_time")
+            .eq("note_uid", note.note_uid)
+            .single();
+    
+          if (error) {
+            console.error("Error:", error.message);
+            continue;
+          }
+    
+          const noteTime = data?.note_time; 
+          const noteLifeTime = convertToMilliseconds(noteTime); 
+          const createdAt = new Date(note.created_at);
+          const difference = now.getTime() - createdAt.getTime();
+    
+          if (difference > noteLifeTime) {
+            expiredNotes.push(note);
+          }
+        } catch (error) {
+          console.error("Error:", error instanceof Error ? error.message : error);
         }
-      });
-
+      }
+    
       if (expiredNotes.length > 0) {
         deleteExpiredNotes(expiredNotes);
       }
@@ -56,16 +72,35 @@ function CheckNoteExpiration() {
 
         if (error) {
           console.error("Error:", error.message);
-        }
+        } 
       } catch (error) {
         console.error("Error:", error instanceof Error ? error.message : error);
       }
     }
 
+    function convertToMilliseconds(noteTime: string): number {
+      const timeUnit = noteTime.slice(-1);
+      const timeValue = parseInt(noteTime.slice(0, -1));
+      let milliseconds = 0;
+
+      switch (timeUnit) {
+        case "h":
+          milliseconds = timeValue * 60 * 60 * 1000;
+          break;
+        case "m":
+          milliseconds = timeValue * 60 * 1000;
+          break;
+        default:
+          milliseconds = 0;
+      }
+
+      return milliseconds;
+    }
+
     fetchNotes();
   }, []);
 
-  return null;
+  return null; 
 }
 
 export default CheckNoteExpiration;

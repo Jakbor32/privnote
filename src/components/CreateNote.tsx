@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import { FaGithub } from "react-icons/fa";
 import supabase from "../../utils/supabaseConfig";
 import toast, { Toaster, useToasterStore } from "react-hot-toast";
 import LinkToNote from "./LinkToNote";
 import { useDarkMode } from "./DarkMode";
 import CheckNoteExpiration from "./CheckNoteExpiration";
+import AdvancedModal from "./AdvancedModal";
 
 interface NoteData {
   note_uid: string;
@@ -16,16 +17,27 @@ function CreateNote(): JSX.Element {
   const [note, setNote] = useState<string>("");
   const [noteId, setNoteId] = useState<string>("");
   const [isNoteCreated, setIsNoteCreated] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedTime, setSelectedTime] = useState<string>("10h");
 
   const notify = (): void => {
     toast.error("Note cannot be empty");
   };
+  
+  const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => {
+    setSelectedTime(event.target.value);
+    toast.success("Time Changed")
+  };
+  const handleCloseModal = (): void => {
+    setIsModalOpen(false);
+  };
+
 
   const handleCreateNote = async (): Promise<void> => {
     if (note.trim()) {
       const { data, error } = await supabase
         .from("privnote")
-        .insert([{ value: note }])
+        .insert([{ value: note, note_time: `${selectedTime}` }]) 
         .select("note_uid")
         .single();
 
@@ -79,7 +91,7 @@ function CreateNote(): JSX.Element {
             value={note}
             onChange={(e) => setNote(e.target.value)}
           ></textarea>
-          <div className="flex justify-center gap-6 mb-4">
+          <div className="flex flex-wrap justify-center gap-6 mb-4">
             <button
               className={`px-6 py-2 font-semibold rounded shadow ${
                 darkMode
@@ -100,6 +112,16 @@ function CreateNote(): JSX.Element {
             >
               Clear
             </button>
+            <button
+              className={`px-6 py-2 font-semibold rounded shadow ${
+                darkMode
+                  ? "text-white bg-stone-800 border border-gray-800 hover:bg-stone-900"
+                  : "text-black bg-white hover:bg-stone-200"
+              }`}
+              onClick={() => setIsModalOpen(true)}
+            >
+              Advanced
+            </button>
           </div>
           <footer
             className={`fixed text-center bottom-1 flex items-center gap-2 ${
@@ -114,6 +136,12 @@ function CreateNote(): JSX.Element {
             </a>
             <p>© 2024 Jakub Borowy</p>
           </footer>
+          <AdvancedModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            selectedTime={selectedTime}
+            handleChange={handleChange}
+          />
           <Toaster position="top-left" reverseOrder={true} />
         </div>
       )}
