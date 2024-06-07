@@ -11,6 +11,7 @@ interface AdvancedModalProps {
   onClose: () => void;
   selectedTime: string;
   handleChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  handleSavePassword: (password: string) => void;
 }
 
 const AdvancedModal: React.FC<AdvancedModalProps> = ({
@@ -18,6 +19,7 @@ const AdvancedModal: React.FC<AdvancedModalProps> = ({
   onClose,
   selectedTime,
   handleChange,
+  handleSavePassword,
 }) => {
   const { darkMode } = useDarkMode();
   const [activeComponent, setActiveComponent] = useState<'time' | 'password'>('time');
@@ -63,7 +65,7 @@ const AdvancedModal: React.FC<AdvancedModalProps> = ({
           <NotePassword
             password={password}
             onChange={handlePasswordChange}
-            onSave={onClose}
+            onSave={handleSavePassword}
             onClose={onClose}
           />
         )}

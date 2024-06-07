@@ -19,6 +19,7 @@ function CreateNote(): JSX.Element {
   const [isNoteCreated, setIsNoteCreated] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedTime, setSelectedTime] = useState<string>("10h");
+  const [password, setPassword] = useState<string>("");
 
   const notify = (): void => {
     toast.error("Note cannot be empty");
@@ -32,12 +33,17 @@ function CreateNote(): JSX.Element {
     setIsModalOpen(false);
   };
 
+  const handleSavePassword = (password: string): void => {
+    setPassword(password);
+    toast.success("Password Set");
+    setIsModalOpen(false);
+  };
 
   const handleCreateNote = async (): Promise<void> => {
     if (note.trim()) {
       const { data, error } = await supabase
         .from("privnote")
-        .insert([{ value: note, note_time: `${selectedTime}` }]) 
+        .insert([{ value: note, note_time: `${selectedTime}`, note_password: password }])
         .select("note_uid")
         .single();
 
@@ -47,6 +53,7 @@ function CreateNote(): JSX.Element {
         setNoteId((data as NoteData).note_uid);
         setIsNoteCreated(true);
         setNote("");
+        setPassword("");
       }
     } else {
       notify();
@@ -141,6 +148,7 @@ function CreateNote(): JSX.Element {
             onClose={handleCloseModal}
             selectedTime={selectedTime}
             handleChange={handleChange}
+            handleSavePassword={handleSavePassword}
           />
           <Toaster position="top-left" reverseOrder={true} />
         </div>

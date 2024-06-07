@@ -71,15 +71,13 @@ function LinkToNote({ noteId }: LinkToNoteProps): JSX.Element {
       >
         Privnote
       </h1>
-      <textarea
-        readOnly
+      <p
         className={`w-full p-4 ${
           darkMode
             ? "bg-[#465555] border-[#465555] text-gray-200"
             : "bg-[#e7ed67] border-[#e7ed67]"
         } focus:outline-none border-4`}
-        value={link}
-      />
+      >{link}</p>
       <div className="flex justify-center gap-6 mb-4">
         <button
           className={`px-6 py-2 font-semibold rounded shadow ${
