@@ -23,7 +23,9 @@ const NotePassword: React.FC<NotePasswordProps> = ({
   };
 
   const handleSave = () => {
-    if (password !== confirmPassword) {
+    if (password === "") {
+      toast.error("Password cannot be empty");
+    } else if (password !== confirmPassword) {
       toast.error("Passwords do not match");
     } else {
       onSave(password);
