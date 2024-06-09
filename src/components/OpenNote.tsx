@@ -13,6 +13,7 @@ const OpenNote: React.FC = () => {
   const [noteNotFound, setNoteNotFound] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [storedPassword, setStoredPassword] = useState<string>("");
+  const [noteViews, setNoteViews] = useState<string>("");
   const [requiresPassword, setRequiresPassword] = useState<boolean>(false);
 
   useEffect(() => {
@@ -27,7 +28,7 @@ const OpenNote: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from("privnote")
-        .select("value, note_password")
+        .select("value, note_password, note_views")
         .eq("note_uid", noteId)
         .single();
 
@@ -37,6 +38,7 @@ const OpenNote: React.FC = () => {
         setNoteContent(data?.value ?? "");
         setStoredPassword(data?.note_password ?? "");
         setRequiresPassword(data?.note_password !== "");
+        setNoteViews(data?.note_views ?? "");
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -74,7 +76,16 @@ const OpenNote: React.FC = () => {
       try {
         setRevealed(true);
         if (noteId) {
-          await supabase.from("privnote").delete().eq("note_uid", noteId);
+          const noteViewsInt = parseInt(noteViews);
+          if (noteViewsInt <= 1) {
+            await supabase.from("privnote").delete().eq("note_uid", noteId);
+          } else {
+            await supabase
+              .from("privnote")
+              .update({ note_views: (noteViewsInt - 1).toString() })
+              .eq("note_uid", noteId);
+            setNoteViews((noteViewsInt - 1).toString());
+          }
         }
       } catch (error) {
         if (error instanceof Error) {
@@ -108,20 +119,19 @@ const OpenNote: React.FC = () => {
         <div className="absolute p-32 rounded-full hover:border-2 animate-ping "></div>
         <span className="text-xl font-semibold">Reveal Note</span>
       </button>
-   
-        <p>Enter password to unlock note</p>
-        <input
-          type="password"
-          placeholder="type here..."
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className={`w-40 px-3 py-2 my-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-            darkMode
-              ? "text-white bg-stone-800 border-gray-700"
-              : "text-gray-700 bg-white border-gray-300"
-          }`}
-        />
-    
+
+      <p>Enter password to unlock note</p>
+      <input
+        type="password"
+        placeholder="type here..."
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        className={`w-40 px-3 py-2 my-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+          darkMode
+            ? "text-white bg-stone-800 border-gray-700"
+            : "text-gray-700 bg-white border-gray-300"
+        }`}
+      />
     </div>
   );
 
@@ -179,7 +189,11 @@ const OpenNote: React.FC = () => {
           <div className="flex flex-col items-center w-full p-4 sm:w-4/5 md:w-3/5 xl:w-2/5 h-1/4">
             {requiresPassword ? passwordInput : revealButton}
             <p className="mt-4 text-center text-gray-300 animate-pulse">
-              You can only view this note once.
+              {noteViews
+                ? `You can only view this note ${noteViews} ${
+                    noteViews === "1" ? "time" : "times"
+                  }`
+                : "You can no longer see this note"}
             </p>
           </div>
         </>

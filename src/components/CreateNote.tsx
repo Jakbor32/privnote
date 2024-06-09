@@ -19,15 +19,20 @@ function CreateNote(): JSX.Element {
   const [isNoteCreated, setIsNoteCreated] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedTime, setSelectedTime] = useState<string>("10h");
+  const [selectedViews, setSelectedViews] = useState<string>("1");
   const [password, setPassword] = useState<string>("");
 
   const notify = (): void => {
     toast.error("Note cannot be empty");
   };
   
-  const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => {
+  const handleChangeTime = (event: ChangeEvent<HTMLSelectElement>): void => {
     setSelectedTime(event.target.value);
     toast.success("Time Changed")
+  };
+  const handleChangeViews = (event: ChangeEvent<HTMLSelectElement>): void => {
+    setSelectedViews(event.target.value);
+    toast.success("Views Changed")
   };
   const handleCloseModal = (): void => {
     setIsModalOpen(false);
@@ -43,7 +48,7 @@ function CreateNote(): JSX.Element {
     if (note.trim()) {
       const { data, error } = await supabase
         .from("privnote")
-        .insert([{ value: note, note_time: `${selectedTime}`, note_password: password }])
+        .insert([{ value: note, note_time: `${selectedTime}`, note_password: password, note_views: `${selectedViews}` }])
         .select("note_uid")
         .single();
 
@@ -147,7 +152,9 @@ function CreateNote(): JSX.Element {
             isOpen={isModalOpen}
             onClose={handleCloseModal}
             selectedTime={selectedTime}
-            handleChange={handleChange}
+            selectedViews={selectedViews}
+            handleChangeTime={handleChangeTime}
+            handleChangeViews={handleChangeViews}
             handleSavePassword={handleSavePassword}
           />
           <Toaster position="top-left" reverseOrder={true} />

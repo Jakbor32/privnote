@@ -5,12 +5,15 @@ import { FaEye } from "react-icons/fa";
 import { useDarkMode } from "./DarkMode";
 import NoteTime from "./NoteTime";
 import NotePassword from "./NotePassword";
+import NoteView from "./NoteView";
 
 interface AdvancedModalProps {
   isOpen: boolean;
   onClose: () => void;
   selectedTime: string;
-  handleChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  selectedViews: string;
+  handleChangeTime: (event: ChangeEvent<HTMLSelectElement>) => void;
+  handleChangeViews: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleSavePassword: (password: string) => void;
 }
 
@@ -18,17 +21,24 @@ const AdvancedModal: React.FC<AdvancedModalProps> = ({
   isOpen,
   onClose,
   selectedTime,
-  handleChange,
+  selectedViews,
+  handleChangeViews,
+  handleChangeTime,
   handleSavePassword,
 }) => {
   const { darkMode } = useDarkMode();
-  const [activeComponent, setActiveComponent] = useState<'time' | 'password'>('time');
+  const [activeComponent, setActiveComponent] = useState<'time' | 'password' | 'view' | 'notification'>('time');
   const [password, setPassword] = useState('');
 
   if (!isOpen) return null;
 
   const handleNoteTimeChange = (value: string) => {
-    handleChange({
+    handleChangeTime({
+      target: { value }
+    } as ChangeEvent<HTMLSelectElement>);
+  };
+  const handleNoteViewChange = (value: string) => {
+    handleChangeViews({
       target: { value }
     } as ChangeEvent<HTMLSelectElement>);
   };
@@ -52,8 +62,16 @@ const AdvancedModal: React.FC<AdvancedModalProps> = ({
             className={`cursor-pointer ${activeComponent === 'password' ? (darkMode ? 'shadow-stone-100 scale-125' : 'shadow-gray-100 scale-125') : 'opacity-25'}`}
             onClick={() => setActiveComponent('password')}
           />
-          <FaEye size={20} className="opacity-25" />
-          <IoMdNotifications size={20} className="opacity-25" />
+           <FaEye
+            size={20}
+            className={`cursor-pointer ${activeComponent === 'view' ? (darkMode ? 'shadow-stone-100 scale-125' : 'shadow-gray-100 scale-125') : 'opacity-25'}`}
+            onClick={() => setActiveComponent('view')}
+          />
+          <IoMdNotifications
+            size={20}
+            className={`cursor-pointer ${activeComponent === 'notification' ? (darkMode ? 'shadow-stone-100 scale-125' : 'shadow-gray-100 scale-125') : 'opacity-25'}`}
+            onClick={() => setActiveComponent('notification')}
+          />
         </div>
         {activeComponent === 'time' ? (
           <NoteTime
@@ -61,13 +79,21 @@ const AdvancedModal: React.FC<AdvancedModalProps> = ({
             onSelect={handleNoteTimeChange}
             onClose={onClose}
           />
-        ) : (
+        ) : activeComponent === 'password' ? (
           <NotePassword
             password={password}
             onChange={handlePasswordChange}
             onSave={handleSavePassword}
             onClose={onClose}
           />
+        ) : activeComponent === 'view' ? (
+          <NoteView
+          selectedViews={selectedViews}
+          onSelect={handleNoteViewChange}
+          onClose={onClose}
+        />
+        ) : (
+          <div>under construction...</div>
         )}
       </div>
     </div>
