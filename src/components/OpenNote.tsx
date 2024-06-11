@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import toast, { Toaster, useToasterStore } from "react-hot-toast";
 import supabase from "../../utils/supabaseConfig";
 import { useDarkMode } from "./DarkMode";
+import sendEmail from "./EmailSender";
 
 const OpenNote: React.FC = () => {
   const { noteId } = useParams<Record<string, string | undefined>>();
@@ -15,6 +16,7 @@ const OpenNote: React.FC = () => {
   const [storedPassword, setStoredPassword] = useState<string>("");
   const [noteViews, setNoteViews] = useState<string>("");
   const [requiresPassword, setRequiresPassword] = useState<boolean>(false);
+  const [noteEmail, setNoteEmail] = useState<string>("");
 
   useEffect(() => {
     if (noteId) {
@@ -28,7 +30,7 @@ const OpenNote: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from("privnote")
-        .select("value, note_password, note_views")
+        .select("value, note_password, note_views, note_email")
         .eq("note_uid", noteId)
         .single();
 
@@ -39,6 +41,7 @@ const OpenNote: React.FC = () => {
         setStoredPassword(data?.note_password ?? "");
         setRequiresPassword(data?.note_password !== "");
         setNoteViews(data?.note_views ?? "");
+        setNoteEmail(data?.note_email ?? "");
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -82,11 +85,15 @@ const OpenNote: React.FC = () => {
           } else {
             await supabase
               .from("privnote")
-              .update({ note_views: (noteViewsInt - 1).toString() })
+              .update({
+                note_views: (noteViewsInt - 1).toString(),
+                note_email: "",
+              })
               .eq("note_uid", noteId);
             setNoteViews((noteViewsInt - 1).toString());
           }
         }
+        sendEmail(noteEmail);
       } catch (error) {
         if (error instanceof Error) {
           console.error(error.message);

@@ -6,6 +6,7 @@ import { useDarkMode } from "./DarkMode";
 import NoteTime from "./NoteTime";
 import NotePassword from "./NotePassword";
 import NoteView from "./NoteView";
+import NoteNotification from "./NoteNotification";
 
 interface AdvancedModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface AdvancedModalProps {
   handleChangeTime: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleChangeViews: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleSavePassword: (password: string) => void;
+  handleSaveEmail: (email: string) => void;
 }
 
 const AdvancedModal: React.FC<AdvancedModalProps> = ({
@@ -25,21 +27,26 @@ const AdvancedModal: React.FC<AdvancedModalProps> = ({
   handleChangeViews,
   handleChangeTime,
   handleSavePassword,
+  handleSaveEmail,
+  
 }) => {
   const { darkMode } = useDarkMode();
-  const [activeComponent, setActiveComponent] = useState<'time' | 'password' | 'view' | 'notification'>('time');
-  const [password, setPassword] = useState('');
+  const [activeComponent, setActiveComponent] = useState<
+    "time" | "password" | "view" | "notification"
+  >("time");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
 
   if (!isOpen) return null;
 
   const handleNoteTimeChange = (value: string) => {
     handleChangeTime({
-      target: { value }
+      target: { value },
     } as ChangeEvent<HTMLSelectElement>);
   };
   const handleNoteViewChange = (value: string) => {
     handleChangeViews({
-      target: { value }
+      target: { value },
     } as ChangeEvent<HTMLSelectElement>);
   };
 
@@ -47,53 +54,99 @@ const AdvancedModal: React.FC<AdvancedModalProps> = ({
     setPassword(event.target.value);
   };
 
+  const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value);
+  };
+
+  
+
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4">
-      <div className="absolute top-0 left-0 w-screen h-screen bg-black bg-opacity-50" onClick={onClose}></div>
-      <div className={`relative z-10 p-6 rounded shadow-lg w-80 ${darkMode ? 'bg-stone-800 text-white' : 'bg-white text-black'}`}>
-        <div className={`top-0 left-0 flex justify-between p-3 rounded-lg cursor-pointer  ${darkMode ? 'bg-stone-900 text-white' : 'bg-gray-300 text-black'}`}>
+      <div
+        className="absolute top-0 left-0 w-screen h-screen bg-black bg-opacity-50"
+        onClick={onClose}
+      ></div>
+      <div
+        className={`relative z-10 p-6 rounded shadow-lg w-80 ${
+          darkMode ? "bg-stone-800 text-white" : "bg-white text-black"
+        }`}
+      >
+        <div
+          className={`top-0 left-0 flex justify-between p-3 rounded-lg cursor-pointer  ${
+            darkMode ? "bg-stone-900 text-white" : "bg-gray-300 text-black"
+          }`}
+        >
           <IoMdTime
             size={20}
-            className={`cursor-pointer ${activeComponent === 'time' ? (darkMode ? 'shadow-stone-100 scale-125' : 'shadow-gray-100 scale-125') : 'opacity-25'}`}
-            onClick={() => setActiveComponent('time')}
+            className={`cursor-pointer ${
+              activeComponent === "time"
+                ? darkMode
+                  ? "shadow-stone-100 scale-125"
+                  : "shadow-gray-100 scale-125"
+                : "opacity-25"
+            }`}
+            onClick={() => setActiveComponent("time")}
           />
           <RiLockPasswordLine
             size={20}
-            className={`cursor-pointer ${activeComponent === 'password' ? (darkMode ? 'shadow-stone-100 scale-125' : 'shadow-gray-100 scale-125') : 'opacity-25'}`}
-            onClick={() => setActiveComponent('password')}
+            className={`cursor-pointer ${
+              activeComponent === "password"
+                ? darkMode
+                  ? "shadow-stone-100 scale-125"
+                  : "shadow-gray-100 scale-125"
+                : "opacity-25"
+            }`}
+            onClick={() => setActiveComponent("password")}
           />
-           <FaEye
+          <FaEye
             size={20}
-            className={`cursor-pointer ${activeComponent === 'view' ? (darkMode ? 'shadow-stone-100 scale-125' : 'shadow-gray-100 scale-125') : 'opacity-25'}`}
-            onClick={() => setActiveComponent('view')}
+            className={`cursor-pointer ${
+              activeComponent === "view"
+                ? darkMode
+                  ? "shadow-stone-100 scale-125"
+                  : "shadow-gray-100 scale-125"
+                : "opacity-25"
+            }`}
+            onClick={() => setActiveComponent("view")}
           />
           <IoMdNotifications
             size={20}
-            className={`cursor-pointer ${activeComponent === 'notification' ? (darkMode ? 'shadow-stone-100 scale-125' : 'shadow-gray-100 scale-125') : 'opacity-25'}`}
-            onClick={() => setActiveComponent('notification')}
+            className={`cursor-pointer ${
+              activeComponent === "notification"
+                ? darkMode
+                  ? "shadow-stone-100 scale-125"
+                  : "shadow-gray-100 scale-125"
+                : "opacity-25"
+            }`}
+            onClick={() => setActiveComponent("notification")}
           />
         </div>
-        {activeComponent === 'time' ? (
+        {activeComponent === "time" ? (
           <NoteTime
             selectedTime={selectedTime}
             onSelect={handleNoteTimeChange}
             onClose={onClose}
           />
-        ) : activeComponent === 'password' ? (
+        ) : activeComponent === "password" ? (
           <NotePassword
             password={password}
             onChange={handlePasswordChange}
             onSave={handleSavePassword}
             onClose={onClose}
           />
-        ) : activeComponent === 'view' ? (
+        ) : activeComponent === "view" ? (
           <NoteView
-          selectedViews={selectedViews}
-          onSelect={handleNoteViewChange}
-          onClose={onClose}
-        />
+            selectedViews={selectedViews}
+            onSelect={handleNoteViewChange}
+            onClose={onClose}
+          />
         ) : (
-          <div>under construction...</div>
+          <NoteNotification
+            email={email}
+            onEmailChange={handleEmailChange}
+            onSave={handleSaveEmail}
+            onClose={onClose}
+          />
         )}
       </div>
     </div>

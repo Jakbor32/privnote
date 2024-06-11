@@ -21,6 +21,7 @@ function CreateNote(): JSX.Element {
   const [selectedTime, setSelectedTime] = useState<string>("10h");
   const [selectedViews, setSelectedViews] = useState<string>("1");
   const [password, setPassword] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
 
   const notify = (): void => {
     toast.error("Note cannot be empty");
@@ -44,11 +45,16 @@ function CreateNote(): JSX.Element {
     setIsModalOpen(false);
   };
 
+  const handleSaveEmail = (email: string): void => {
+    setEmail(email);
+    toast.success("Email Set");
+    setIsModalOpen(false);
+  };
   const handleCreateNote = async (): Promise<void> => {
     if (note.trim()) {
       const { data, error } = await supabase
         .from("privnote")
-        .insert([{ value: note, note_time: `${selectedTime}`, note_password: password, note_views: `${selectedViews}` }])
+        .insert([{ value: note, note_time: `${selectedTime}`, note_password: password, note_views: `${selectedViews}`, note_email: email }])
         .select("note_uid")
         .single();
 
@@ -59,6 +65,7 @@ function CreateNote(): JSX.Element {
         setIsNoteCreated(true);
         setNote("");
         setPassword("");
+        setEmail("");
       }
     } else {
       notify();
@@ -156,6 +163,7 @@ function CreateNote(): JSX.Element {
             handleChangeTime={handleChangeTime}
             handleChangeViews={handleChangeViews}
             handleSavePassword={handleSavePassword}
+            handleSaveEmail={handleSaveEmail}
           />
           <Toaster position="top-left" reverseOrder={true} />
         </div>
