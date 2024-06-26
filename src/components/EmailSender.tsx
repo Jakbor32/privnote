@@ -5,7 +5,6 @@ const sendEmail = (email: string): void => {
     return;
   }
 
-  console.log(email);
   const templateParams = {
     email: email,
   };
