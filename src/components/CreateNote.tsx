@@ -2,7 +2,7 @@ import { useState, useEffect, ChangeEvent } from "react";
 import { FaGithub } from "react-icons/fa";
 import supabase from "../../utils/supabaseConfig";
 import toast, { Toaster, useToasterStore } from "react-hot-toast";
-import LinkToNote from "./LinkToNote";
+import LinkToNote from "./LinkToNote/LinkToNote";
 import { useDarkMode } from "./DarkMode";
 import CheckNoteExpiration from "./CheckNoteExpiration";
 import AdvancedModal from "./AdvancedModal";
