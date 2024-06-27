@@ -9,6 +9,7 @@ import OpenNoteContent from "./OpenNoteContent";
 import Footer from "./../common/Footer";
 import PasswordInput from "./PasswordInput";
 import RevealButton from "./RevealButton";
+import Container from "../common/Container";
 
 const OpenNote: React.FC = () => {
   const { noteId } = useParams<Record<string, string | undefined>>();
@@ -85,17 +86,6 @@ const OpenNote: React.FC = () => {
     }
   };
 
-  const copyToClipboard = (): void => {
-    navigator.clipboard.writeText(noteContent);
-    toast.success("Note content copied to clipboard!", {
-      style: {
-        borderRadius: "10px",
-        background: darkMode ? "#333" : "#ABA",
-        color: "#fff",
-      },
-    });
-  };
-
   // Toast Limiter
 
   const TOAST_LIMIT = 1;
@@ -108,12 +98,8 @@ const OpenNote: React.FC = () => {
   }, [toasts]);
 
   return (
-    <div
-      className={`h-screen flex flex-col items-center w-full gap-4 p-4 ${
-        darkMode ? "bg-[#15202B] text-white" : "bg-[#7899A6] text-black"
-      }`}
-    >
-      <Header />
+    <Container>
+      <Header darkMode={darkMode} />
       {revealed ? (
         noteNotFound ? (
           <div className="text-center">
@@ -132,7 +118,6 @@ const OpenNote: React.FC = () => {
             darkMode={darkMode}
             noteContent={noteContent}
             noteViews={noteViews}
-            copyToClipboard={copyToClipboard}
           />
         )
       ) : (
@@ -158,7 +143,7 @@ const OpenNote: React.FC = () => {
       )}
       <Footer darkMode={darkMode} />
       <Toaster position="top-left" reverseOrder={true} />
-    </div>
+      </Container>
   );
 };
 

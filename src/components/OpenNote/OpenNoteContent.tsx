@@ -1,16 +1,15 @@
 import React from "react";
+import CopyButton from "../common/CopyButton";
 
 interface NoteContentProps {
   darkMode: boolean;
   noteContent: string;
   noteViews: string;
-  copyToClipboard: () => void;
 }
 
 const NoteContent: React.FC<NoteContentProps> = ({
   darkMode,
   noteContent,
-  copyToClipboard,
 }) => (
     
   <>
@@ -22,14 +21,7 @@ const NoteContent: React.FC<NoteContentProps> = ({
       value={noteContent}
     />
     <div className="flex justify-center gap-6 mb-4">
-      <button
-        className={`px-6 py-2 font-semibold rounded shadow ${
-          darkMode ? "text-white bg-stone-800 border border-gray-800 hover:bg-stone-900" : "text-black bg-white hover:bg-stone-200"
-        }`}
-        onClick={copyToClipboard}
-      >
-        Copy
-      </button>
+    <CopyButton copy={noteContent} darkMode={darkMode} />
     </div>
   </>
 );
