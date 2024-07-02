@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import toast, { Toaster, useToasterStore } from "react-hot-toast";
-import supabase from "../../../utils/supabaseConfig";
+import supabase from "../../utils/supabaseConfig";
 import { useDarkMode } from "./../DarkMode";
-import sendEmail from "./../EmailSender";
+import sendEmail from "../../utils/EmailSender";
 import Header from "./../common/Header";
 import OpenNoteContent from "./OpenNoteContent";
 import Footer from "./../common/Footer";

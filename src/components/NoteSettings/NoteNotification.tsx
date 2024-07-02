@@ -1,5 +1,5 @@
 import React from "react";
-import { useDarkMode } from "./DarkMode";
+import { useDarkMode } from "../DarkMode";
 import { toast } from "react-hot-toast";
 
 interface NoteNotificationProps {

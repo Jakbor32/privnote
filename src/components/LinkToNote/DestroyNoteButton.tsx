@@ -1,6 +1,6 @@
 import React from "react";
 import toast from "react-hot-toast";
-import supabase from "./../../../utils/supabaseConfig";
+import supabase from "../../utils/supabaseConfig";
 
 interface DestroyNoteButtonProps {
   noteId: string;
