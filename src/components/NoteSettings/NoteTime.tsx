@@ -12,10 +12,10 @@ const NoteTime: React.FC<NoteTimeProps> = ({ selectedTime, onSelect, onClose }) 
   const [isOpen, setIsOpen] = useState(false);
 
   const options = [
-    { value: '2h', label: '2 hours' },
-    { value: '4h', label: '4 hours' },
-    { value: '10h', label: '10 hours' },
+    { value: '12h', label: '12 hours' },
     { value: '24h', label: '1 day' },
+    { value: '48h', label: '2 days' },
+    { value: '120h', label: '5 days' },
   ];
 
   const handleSelect = (value: string) => {

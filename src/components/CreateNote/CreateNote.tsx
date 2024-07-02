@@ -19,7 +19,7 @@ function CreateNote(): JSX.Element {
   const [note, setNote] = useState<string>("");
   const [noteId, setNoteId] = useState<string>("");
   const [isNoteCreated, setIsNoteCreated] = useState<boolean>(false);
-  const [selectedTime, setSelectedTime] = useState<string>("10h");
+  const [selectedTime, setSelectedTime] = useState<string>("24h");
   const [selectedViews, setSelectedViews] = useState<string>("1");
   const [password, setPassword] = useState<string>("");
   const [email, setEmail] = useState<string>("");
