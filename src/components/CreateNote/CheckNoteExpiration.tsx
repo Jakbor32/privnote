@@ -30,7 +30,7 @@ function CheckNoteExpiration() {
     async function checkExpirationNotes(notes: Note[]) {
       const now = new Date();
       const expiredNotes: Note[] = [];
-    
+
       for (const note of notes) {
         try {
           const { data, error } = await supabase
@@ -38,25 +38,28 @@ function CheckNoteExpiration() {
             .select("note_time")
             .eq("note_uid", note.note_uid)
             .single();
-    
+
           if (error) {
             console.error("Error:", error.message);
             continue;
           }
-    
-          const noteTime = data?.note_time; 
-          const noteLifeTime = convertToMilliseconds(noteTime); 
+
+          const noteTime = data?.note_time;
+          const noteLifeTime = convertToMilliseconds(noteTime);
           const createdAt = new Date(note.created_at);
           const difference = now.getTime() - createdAt.getTime();
-    
+
           if (difference > noteLifeTime) {
             expiredNotes.push(note);
           }
         } catch (error) {
-          console.error("Error:", error instanceof Error ? error.message : error);
+          console.error(
+            "Error:",
+            error instanceof Error ? error.message : error
+          );
         }
       }
-    
+
       if (expiredNotes.length > 0) {
         deleteExpiredNotes(expiredNotes);
       }
@@ -64,7 +67,7 @@ function CheckNoteExpiration() {
 
     async function deleteExpiredNotes(expiredNotes: Note[]) {
       try {
-        const noteIds = expiredNotes.map(note => note.note_uid);
+        const noteIds = expiredNotes.map((note) => note.note_uid);
         const { error } = await supabase
           .from("privnote")
           .delete()
@@ -72,7 +75,7 @@ function CheckNoteExpiration() {
 
         if (error) {
           console.error("Error:", error.message);
-        } 
+        }
       } catch (error) {
         console.error("Error:", error instanceof Error ? error.message : error);
       }
@@ -100,7 +103,7 @@ function CheckNoteExpiration() {
     fetchNotes();
   }, []);
 
-  return null; 
+  return null;
 }
 
 export default CheckNoteExpiration;

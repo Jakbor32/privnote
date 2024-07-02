@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDarkMode } from "./DarkMode";
+import { useDarkMode } from "../DarkMode";
 
 interface NoteTimeProps {
   selectedTime: string;

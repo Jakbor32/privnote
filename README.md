@@ -16,4 +16,4 @@ PrivNote allows users to create quick notes that automatically delete themselves
 
 ### Live App
 
-[(https://privnote-app.vercel.app/)](https://privnote-app.vercel.app/)
+[https://privnote-app.vercel.app/](https://privnote-app.vercel.app/)
