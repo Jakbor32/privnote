@@ -2,11 +2,11 @@ import React, { ChangeEvent, useState } from "react";
 import { IoMdTime, IoMdNotifications } from "react-icons/io";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
-import { useDarkMode } from "./DarkMode";
-import NoteTime from "./NoteTime";
-import NotePassword from "./NotePassword";
-import NoteView from "./NoteView";
-import NoteNotification from "./NoteNotification";
+import { useDarkMode } from "../DarkMode";
+import NoteTime from "../NoteSettings/NoteTime";
+import NotePassword from "../NoteSettings/NotePassword";
+import NoteView from "../NoteSettings/NoteView";
+import NoteNotification from "../NoteSettings/NoteNotification";
 
 interface AdvancedModalProps {
   isOpen: boolean;
