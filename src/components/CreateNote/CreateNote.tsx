@@ -25,7 +25,13 @@ function CreateNote(): JSX.Element {
   const [email, setEmail] = useState<string>("");
 
   const notify = (): void => {
-    toast.error("Note cannot be empty");
+    toast.error("Note cannot be empty",{
+      style: {
+        borderRadius: "10px",
+        background: darkMode ? "#333" : "#ABA",
+        color: "#fff",
+      },
+    });
   };
 
   const handleCreateNote = async (): Promise<void> => {
