@@ -116,8 +116,17 @@ const UploadToStorage: React.FC<UploadToStorageProps> = ({
   };
 
   const copyLinkToClipboard = () => {
-    if (!fileUrl) return;
-
+    if (!fileUrl) {
+      toast.error("File URL is empty or not set.", {
+        style: {
+          borderRadius: "10px",
+          background: darkMode ? "#333" : "#ABA",
+          color: "#fff",
+        },
+      });
+      return;
+    }
+  
     navigator.clipboard
       .writeText(fileUrl)
       .then(() => {
@@ -129,7 +138,7 @@ const UploadToStorage: React.FC<UploadToStorageProps> = ({
           },
         });
       })
-      .catch((error) => {
+      .catch(() => {
         toast.error("Failed to copy link. Please try again.", {
           style: {
             borderRadius: "10px",
