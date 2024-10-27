@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import Textarea from "./TextArea.tsx";
 import Buttons from "./Buttons";
 import Container from "../common/Container";
+import UploadToStorage from "./UploadToStorage.tsx";
 
 interface CreateNoteAreaProps {
   note: string;
@@ -31,6 +32,7 @@ function CreateNoteArea({
 }: CreateNoteAreaProps): JSX.Element {
   const { darkMode } = useDarkMode();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isModalUploadFileOpen, setIsModalUploadFileOpen] = useState<boolean>(false);
 
   const toastStyle = {
     borderRadius: "10px",
@@ -72,7 +74,8 @@ function CreateNoteArea({
         onCreateNote={handleCreateNote}
         onClearNote={() => setNote("")}
         onOpenAdvanced={() => setIsModalOpen(true)}
-      />
+        onOpenUploadFile={() => setIsModalUploadFileOpen(true)}
+       />
       <AdvancedModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -83,6 +86,9 @@ function CreateNoteArea({
         handleSavePassword={handleSavePassword}
         handleSaveEmail={handleSaveEmail}
       />
+       <UploadToStorage
+        isOpen={isModalUploadFileOpen} 
+        onClose={() => setIsModalUploadFileOpen(false)} />
     </Container>
   );
 }
