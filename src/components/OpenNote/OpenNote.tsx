@@ -10,6 +10,7 @@ import Footer from "./../common/Footer";
 import PasswordInput from "./PasswordInput";
 import RevealButton from "./RevealButton";
 import Container from "../common/Container";
+import { useRedirectHandlers } from "../../utils/useRedirectHandlers";
 
 const OpenNote: React.FC = () => {
   const { noteId } = useParams<Record<string, string | undefined>>();
@@ -22,6 +23,8 @@ const OpenNote: React.FC = () => {
   const [noteViews, setNoteViews] = useState<string>("");
   const [requiresPassword, setRequiresPassword] = useState<boolean>(false);
   const [noteEmail, setNoteEmail] = useState<string>("");
+
+  useRedirectHandlers({ revealed, noteContent, noteNotFound });
 
   useEffect(() => {
     if (noteId) {
@@ -87,7 +90,6 @@ const OpenNote: React.FC = () => {
   };
 
   // Toast Limiter
-
   const TOAST_LIMIT = 1;
   const { toasts } = useToasterStore();
   useEffect(() => {
@@ -104,7 +106,7 @@ const OpenNote: React.FC = () => {
         noteNotFound ? (
           <div className="text-center">
             <p className="pb-4 text-gray-300 ">
-              Note not found or has expired.
+              Note not found or has expired. <br />Use the link below or refresh the page by clicking F5 to create a new note.
             </p>
             <a
               href="https://privnote-app.vercel.app"
@@ -143,7 +145,7 @@ const OpenNote: React.FC = () => {
       )}
       <Footer darkMode={darkMode} />
       <Toaster position="top-left" reverseOrder={true} />
-      </Container>
+    </Container>
   );
 };
 
