@@ -7,6 +7,7 @@ import CopyButton from "./../common/CopyButton";
 import DestroyNoteButton from "./DestroyNoteButton";
 import Container from "../common/Container";
 import { useDarkMode } from "..//DarkMode";
+import {TextRevealTW} from "./TextRevealAnimation"; 
 
 interface LinkToNoteProps {
   noteId: string;
@@ -28,6 +29,7 @@ function LinkToNote({ noteId }: LinkToNoteProps): JSX.Element {
         <CopyButton copy={link} darkMode={darkMode} />
         <DestroyNoteButton noteId={noteId} darkMode={darkMode} />
       </div>
+      <TextRevealTW  darkMode={darkMode}/> 
       <Footer darkMode={darkMode} />
       <Toaster position="top-left" reverseOrder={true} />
     </Container>

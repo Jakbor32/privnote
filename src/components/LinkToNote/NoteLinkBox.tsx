@@ -11,7 +11,7 @@ const NoteLinkBox: React.FC<NoteLinkBoxProps> = ({ link, darkMode }) => (
       darkMode
         ? "bg-[#465555] border-[#465555] text-gray-200"
         : "bg-[#e7ed67] border-[#e7ed67]"
-    } focus:outline-none border-4`}
+    } focus:outline-none border-4 overflow-hidden break-words`}
   >
     {link}
   </p>
