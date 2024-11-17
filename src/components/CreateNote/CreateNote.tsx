@@ -8,6 +8,7 @@ import { useDarkMode } from "./../DarkMode";
 import Footer from "../common/Footer";
 import Header from "../common/Header";
 import Container from "../common/Container";
+import CryptoJS from "crypto-js";
 
 interface NoteData {
   note_uid: string;
@@ -36,11 +37,15 @@ function CreateNote(): JSX.Element {
 
   const handleCreateNote = async (): Promise<void> => {
     if (note.trim()) {
+ // ******Generate a random encryption key and encrpy note******
+      const encryptionKey = CryptoJS.lib.WordArray.random(16).toString();
+      const encryptedNote = CryptoJS.AES.encrypt(note, encryptionKey).toString();
+
       const { data, error } = await supabase
         .from("privnote")
         .insert([
           {
-            value: note,
+            value: encryptedNote,
             note_time: `${selectedTime}`,
             note_password: password,
             note_views: `${selectedViews}`,
@@ -53,7 +58,9 @@ function CreateNote(): JSX.Element {
       if (error) {
         console.error(error);
       } else {
-        setNoteId((data as NoteData).note_uid);
+        //******Link with the encryption key in the URL hash******
+        const noteLink = `${window.location.origin}/${(data as NoteData).note_uid}#${encryptionKey}`;
+        setNoteId(noteLink);
         setIsNoteCreated(true);
         setNote("");
         setPassword("");

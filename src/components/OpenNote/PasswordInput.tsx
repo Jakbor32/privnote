@@ -17,7 +17,9 @@ const PasswordInput: React.FC<PasswordInputProps> = ({ password, setPassword, re
       <span className="text-xl font-semibold">Reveal Note</span>
     </button>
 
-    <p>Enter password to unlock note</p>
+    <p   className={`${
+        darkMode ? "text-white  " : "text-gray-700 border-gray-300"
+      }`}>Enter password to unlock note</p>
     <input
       type="password"
       placeholder="type here..."

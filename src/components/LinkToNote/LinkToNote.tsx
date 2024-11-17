@@ -17,7 +17,7 @@ function LinkToNote({ noteId }: LinkToNoteProps): JSX.Element {
   const [link, setLink] = useState<string>("");
 
   useEffect(() => {
-    setLink(`https://privnote-app.vercel.app/${noteId}`);
+    setLink(`${noteId}`);
   }, [noteId]);
 
   return (
