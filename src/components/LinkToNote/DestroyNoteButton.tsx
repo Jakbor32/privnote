@@ -3,20 +3,21 @@ import toast from "react-hot-toast";
 import supabase from "../../utils/supabaseConfig";
 
 interface DestroyNoteButtonProps {
-  noteId: string;
+  grabLink: string;
   darkMode: boolean;
 }
 
 const DestroyNoteButton: React.FC<DestroyNoteButtonProps> = ({
-  noteId,
+  grabLink,
   darkMode,
 }) => {
   const handleDestroyNote = async (): Promise<void> => {
     try {
+      const extractedNoteId = grabLink.split("/").pop()?.split("#")[0];
       const { error } = await supabase
         .from("privnote")
         .delete()
-        .eq("note_uid", noteId);
+        .eq("note_uid", extractedNoteId);
       if (error) {
         throw new Error(error.message);
       }

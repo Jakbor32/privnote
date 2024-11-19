@@ -27,7 +27,7 @@ function LinkToNote({ noteId }: LinkToNoteProps): JSX.Element {
       <NoteLinkBox link={link} darkMode={darkMode} />
       <div className="flex justify-center gap-6 mb-4">
         <CopyButton copy={link} darkMode={darkMode} />
-        <DestroyNoteButton noteId={noteId} darkMode={darkMode} />
+        <DestroyNoteButton grabLink={link} darkMode={darkMode} />
       </div>
       <TextRevealTW  darkMode={darkMode}/> 
       <Footer darkMode={darkMode} />
