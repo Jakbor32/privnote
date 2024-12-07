@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import supabase from "../../utils/supabaseConfig";
 import toast, { Toaster, useToasterStore } from "react-hot-toast";
 import LinkToNote from "../LinkToNote/LinkToNote";
-import CheckNoteExpiration from "./CheckNoteExpiration";
 import CreateNoteArea from "./CreateNoteArea";
 import { useDarkMode } from "./../DarkMode";
 import Footer from "../common/Footer";
@@ -83,7 +82,6 @@ function CreateNote(): JSX.Element {
 
   return (
     <div>
-      <CheckNoteExpiration />
       {isNoteCreated ? (
         <LinkToNote noteId={noteId} />
       ) : (

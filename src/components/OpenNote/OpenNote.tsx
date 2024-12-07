@@ -12,6 +12,7 @@ import PasswordInput from "./PasswordInput";
 import RevealButton from "./RevealButton";
 import Container from "../common/Container";
 import { useRedirectHandlers } from "../../utils/useRedirectHandlers";
+import CheckNoteExpiration from "./CheckNoteExpiration";
 
 const OpenNote: React.FC = () => {
   const { noteId } = useParams<Record<string, string | undefined>>();
@@ -26,16 +27,17 @@ const OpenNote: React.FC = () => {
   const [noteViews, setNoteViews] = useState<string>("");
   const [requiresPassword, setRequiresPassword] = useState<boolean>(false);
   const [noteEmail, setNoteEmail] = useState<string>("");
+  const [isExpired, setIsExpired] = useState<boolean>(false);
 
   useRedirectHandlers({ revealed, noteContent, noteNotFound });
 
   useEffect(() => {
     if (noteId) {
-      loadNoteContent(noteId);
-    } else {
-      setNoteNotFound(true);
+      if (!isExpired) {
+        loadNoteContent(noteId);
+      }
     }
-  }, [noteId]);
+  }, [noteId, isExpired]);
 
   const decryptNote = (
     encryptedNote: string,
@@ -134,14 +136,28 @@ const OpenNote: React.FC = () => {
 
   return (
     <Container>
+      <CheckNoteExpiration setIsExpired={setIsExpired} noteId={noteId ?? ""} />
       <Header darkMode={darkMode} />
       {revealed ? (
         noteNotFound ? (
           <div className="text-center">
             <p className="pb-4 text-gray-300 ">
-              Note not found or has expired. <br />
+              Note not found. <br />
               Use the link below or refresh the page by clicking F5 to create a
               new note.
+            </p>
+            <a
+              href="https://privnote-app.vercel.app"
+              className="text-gray-300 underline"
+            >
+              Create new note.
+            </a>
+          </div>
+        ) : isExpired ? (
+          <div className="text-center">
+            <p className="pb-4 text-gray-300 ">
+              This note has expired. <br />
+              Use the link below to create a new note.
             </p>
             <a
               href="https://privnote-app.vercel.app"
@@ -218,7 +234,9 @@ const OpenNote: React.FC = () => {
             <RevealButton revealNote={revealNote} />
           )}
           <p className="mt-4 text-center text-gray-300 animate-pulse">
-            {noteViews
+            {isExpired
+              ? "You can no longer see this note"
+              : noteViews
               ? `You can only view this note ${noteViews} ${
                   noteViews === "1" ? "time" : "times"
                 }`

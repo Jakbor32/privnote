@@ -46,6 +46,12 @@ const FileInput: React.FC<FileInputProps> = ({
 
   const isDisabled = !!fileUrl;
 
+  // ******Cut long file name******
+  const truncateFileName = (name: string | null): string => {
+    if (!name) return "";
+    return name.length > 50 ? `${name.slice(0, 20)}...` : name;
+  };
+
   return (
     <div
       onClick={isDisabled ? undefined : handleClick}
@@ -62,10 +68,8 @@ const FileInput: React.FC<FileInputProps> = ({
         ref={fileInputRef}
         disabled={isDisabled}
       />
-      <span
-        className={`text-lg font-medium ${!fileName ? "animate-pulse" : ""}`}
-      >
-        {fileName || "Click or drag a file here"}
+      <span className={`text-lg font-medium ${!fileName ? "animate-pulse" : ""}`}>
+        {truncateFileName(fileName) || "Click or drag a file here"}
       </span>
       <span className="absolute bottom-0 opacity-50">Max size: 50MB</span>
     </div>
