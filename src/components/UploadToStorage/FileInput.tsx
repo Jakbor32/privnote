@@ -1,4 +1,6 @@
 import React, { ChangeEvent, useRef } from "react";
+import toast from "react-hot-toast";
+import { removePolishChars } from "../../utils/isValidKey";
 
 interface FileInputProps {
   fileName: string | null;
@@ -17,7 +19,32 @@ const FileInput: React.FC<FileInputProps> = ({
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0] || null;
-    onFileChange(selectedFile);
+    
+    if (selectedFile) {
+      const sanitizedFileName = removePolishChars(selectedFile.name);
+      if (sanitizedFileName !== selectedFile.name) {
+        toast.promise(
+          new Promise<void>((resolve, reject) => {
+            setTimeout(() => {
+              if (sanitizedFileName === selectedFile.name) {
+                reject(new Error("File name did not change"));
+              } else {
+                resolve();
+              }
+            }, 1000);
+          }),
+          {
+            loading: "Fix invalid characters...",
+            success: `File name changed to: ${sanitizedFileName}`,
+            error: "Could not save the file name.",
+          }
+        );
+      }
+      
+      
+
+      onFileChange(new File([selectedFile], sanitizedFileName, { type: selectedFile.type }));
+    }
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -37,7 +64,16 @@ const FileInput: React.FC<FileInputProps> = ({
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     const selectedFile = event.dataTransfer.files?.[0] || null;
-    onFileChange(selectedFile);
+    
+    if (selectedFile) {
+      const sanitizedFileName = removePolishChars(selectedFile.name);
+      
+      if (sanitizedFileName !== selectedFile.name) {
+        toast.success(`File name changed to: ${sanitizedFileName}`);
+      }
+
+      onFileChange(new File([selectedFile], sanitizedFileName, { type: selectedFile.type }));
+    }
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
