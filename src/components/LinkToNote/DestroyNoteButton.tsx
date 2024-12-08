@@ -21,13 +21,7 @@ const DestroyNoteButton: React.FC<DestroyNoteButtonProps> = ({
       if (error) {
         throw new Error(error.message);
       }
-      toast.success("Note destroyed successfully!", {
-        style: {
-          borderRadius: "10px",
-          background: darkMode ? "#333" : "#ABA",
-          color: "#fff",
-        },
-      });
+      toast.success("Note destroyed successfully!");
     } catch (err) {
       if (err instanceof Error) {
         console.error(err.message);

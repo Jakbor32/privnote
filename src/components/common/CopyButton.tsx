@@ -8,13 +8,7 @@ interface CopyButtonProps {
 
 const CopyButton: React.FC<CopyButtonProps> = ({ copy, darkMode }) => {
   const notify = () =>
-    toast.success("Copied!", {
-      style: {
-        borderRadius: "10px",
-        background: darkMode ? "#333" : "#ABA",
-        color: "#fff",
-      },
-    });
+    toast.success("Copied!");
 
   const copyToClipboard = (): void => {
     navigator.clipboard.writeText(copy);

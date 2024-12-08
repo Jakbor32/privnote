@@ -18,21 +18,15 @@ const NotePassword: React.FC<NotePasswordProps> = ({
   const { darkMode } = useDarkMode();
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const toastStyle = {
-    borderRadius: "10px",
-    background: darkMode ? "#333" : "#ABA",
-    color: "#fff",
-  };
-
   const handleConfirmChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setConfirmPassword(event.target.value);
   };
 
   const handleSave = () => {
     if (password === "") {
-      toast.error("Password cannot be empty", { style: toastStyle });
+      toast.error("Password cannot be empty");
     } else if (password !== confirmPassword) {
-      toast.error("Passwords do not match", { style: toastStyle });
+      toast.error("Passwords do not match");
     } else {
       onSave(password);
     }

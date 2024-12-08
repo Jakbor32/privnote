@@ -25,20 +25,17 @@ function CreateNote(): JSX.Element {
   const [email, setEmail] = useState<string>("");
 
   const notify = (): void => {
-    toast.error("Note cannot be empty",{
-      style: {
-        borderRadius: "10px",
-        background: darkMode ? "#333" : "#ABA",
-        color: "#fff",
-      },
-    });
+    toast.error("Note cannot be empty");
   };
 
   const handleCreateNote = async (): Promise<void> => {
     if (note.trim()) {
- // ******Generate a random encryption key and encrpy note******
+      // ******Generate a random encryption key and encrpy note******
       const encryptionKey = CryptoJS.lib.WordArray.random(16).toString();
-      const encryptedNote = CryptoJS.AES.encrypt(note, encryptionKey).toString();
+      const encryptedNote = CryptoJS.AES.encrypt(
+        note,
+        encryptionKey
+      ).toString();
 
       const { data, error } = await supabase
         .from("privnote")
@@ -58,7 +55,9 @@ function CreateNote(): JSX.Element {
         console.error(error);
       } else {
         //******Link with the encryption key in the URL hash******
-        const noteLink = `${window.location.origin}/${(data as NoteData).note_uid}#${encryptionKey}`;
+        const noteLink = `${window.location.origin}/${
+          (data as NoteData).note_uid
+        }#${encryptionKey}`;
         setNoteId(noteLink);
         setIsNoteCreated(true);
         setNote("");
@@ -99,7 +98,17 @@ function CreateNote(): JSX.Element {
             setSelectedViews={setSelectedViews}
           />
           <Footer darkMode={darkMode} />
-          <Toaster position="top-left" reverseOrder={true} />
+          <Toaster
+            position="top-left"
+            reverseOrder={true}
+            toastOptions={{
+              style: {
+                borderRadius: "10px",
+                background: darkMode ? "#333" : "#ABA",
+                color: "#fff",
+              },
+            }}
+          />
         </Container>
       )}
     </div>

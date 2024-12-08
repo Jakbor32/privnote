@@ -245,7 +245,17 @@ const OpenNote: React.FC = () => {
         </div>
       )}
       <Footer darkMode={darkMode} />
-      <Toaster position="top-left" reverseOrder={true} />
+      <Toaster
+        position="top-left"
+        reverseOrder={true}
+        toastOptions={{
+          style: {
+            borderRadius: "10px",
+            background: darkMode ? "#333" : "#ABA",
+            color: "#fff",
+          },
+        }}
+      />
     </Container>
   );
 };

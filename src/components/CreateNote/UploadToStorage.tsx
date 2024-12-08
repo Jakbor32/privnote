@@ -59,13 +59,7 @@ const UploadToStorage: React.FC<UploadToStorageProps> = ({
 
   const handleUpload = async () => {
     if (!file) {
-      toast.error("No file selected.", {
-        style: {
-          borderRadius: "10px",
-          background: darkMode ? "#333" : "#ABA",
-          color: "#fff",
-        },
-      });
+      toast.error("No file selected.");
       return;
     }
 
@@ -95,21 +89,9 @@ const UploadToStorage: React.FC<UploadToStorageProps> = ({
       }
 
       setFileUrl(signedUrlData.signedUrl);
-      toast.success("File uploaded successfully!", {
-        style: {
-          borderRadius: "10px",
-          background: darkMode ? "#333" : "#ABA",
-          color: "#fff",
-        },
-      });
+      toast.success("File uploaded successfully!");
     } catch (error) {
-      toast.error((error as Error).message, {
-        style: {
-          borderRadius: "10px",
-          background: darkMode ? "#333" : "#ABA",
-          color: "#fff",
-        },
-      });
+      toast.error((error as Error).message);
     } finally {
       setIsLoading(false);
     }
@@ -117,35 +99,17 @@ const UploadToStorage: React.FC<UploadToStorageProps> = ({
 
   const copyLinkToClipboard = () => {
     if (!fileUrl) {
-      toast.error("File URL is empty or not set.", {
-        style: {
-          borderRadius: "10px",
-          background: darkMode ? "#333" : "#ABA",
-          color: "#fff",
-        },
-      });
+      toast.error("File URL is empty or not set.");
       return;
     }
   
     navigator.clipboard
       .writeText(fileUrl)
       .then(() => {
-        toast.success("Link copied to clipboard!", {
-          style: {
-            borderRadius: "10px",
-            background: darkMode ? "#333" : "#ABA",
-            color: "#fff",
-          },
-        });
+        toast.success("Link copied to clipboard!");
       })
       .catch(() => {
-        toast.error("Failed to copy link. Please try again.", {
-          style: {
-            borderRadius: "10px",
-            background: darkMode ? "#333" : "#ABA",
-            color: "#fff",
-          },
-        });
+        toast.error("Failed to copy link. Please try again.");
       });
     onClose();
   };

@@ -34,20 +34,15 @@ function CreateNoteArea({
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isModalUploadFileOpen, setIsModalUploadFileOpen] = useState<boolean>(false);
 
-  const toastStyle = {
-    borderRadius: "10px",
-    background: darkMode ? "#333" : "#ABA",
-    color: "#fff",
-  };
 
   const handleChangeTime = (event: ChangeEvent<HTMLSelectElement>): void => {
     setSelectedTime(event.target.value);
-    toast.success("Time Changed", { style: toastStyle });
+    toast.success("Time Changed");
   };
 
   const handleChangeViews = (event: ChangeEvent<HTMLSelectElement>): void => {
     setSelectedViews(event.target.value);
-    toast.success("Views Changed", { style: toastStyle });
+    toast.success("Views Changed");
   };
 
   const handleCloseModal = (): void => {
@@ -56,13 +51,13 @@ function CreateNoteArea({
 
   const handleSavePassword = (password: string): void => {
     setPassword(password);
-    toast.success("Password Set", { style: toastStyle });
+    toast.success("Password Set");
     setIsModalOpen(false);
   };
 
   const handleSaveEmail = (email: string): void => {
     setEmail(email);
-    toast.success("Email Set", { style: toastStyle });
+    toast.success("Email Set");
     setIsModalOpen(false);
   };
 

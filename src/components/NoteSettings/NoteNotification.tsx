@@ -17,12 +17,6 @@ const NoteNotification: React.FC<NoteNotificationProps> = ({
 }) => {
   const { darkMode } = useDarkMode();
 
-  const toastStyle = {
-    borderRadius: "10px",
-    background: darkMode ? "#333" : "#ABA",
-    color: "#fff",
-  };
-
   const isEmailValid = (email: string): boolean => {
     const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -30,12 +24,12 @@ const NoteNotification: React.FC<NoteNotificationProps> = ({
 
   const handleEmailSave = () => {
     if (email.trim() === "") {
-      toast.error("Email cannot be empty.", { style: toastStyle });
+      toast.error("Email cannot be empty.");
       return;
     }
 
     if (!isEmailValid(email)) {
-      toast.error("Invalid email format.", { style: toastStyle });
+      toast.error("Invalid email format.");
       return;
     }
 
