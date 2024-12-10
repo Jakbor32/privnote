@@ -63,6 +63,7 @@ const OpenNote: React.FC = () => {
   };
 
   const loadNoteContent = async (noteId: string): Promise<void> => {
+    console.log(noteId);
     try {
       const { data, error } = await supabase
         .from("privnote")
@@ -74,6 +75,7 @@ const OpenNote: React.FC = () => {
         setNoteNotFound(true);
       } else {
         const encryptionKey = window.location.hash.substring(1);
+        console.log(encryptionKey);
         if (!encryptionKey) {
           setNoteNotFound(true);
           setMissingKey(true);
@@ -94,7 +96,7 @@ const OpenNote: React.FC = () => {
         setRequiresPassword(data?.note_password !== "");
         setNoteViews(data?.note_views ?? "");
         setNoteEmail(data?.note_email ?? "");
-        
+        console.log(loadCount);
         setLoadCount((prevCount) => prevCount + 1);
       }
     } catch (error) {
