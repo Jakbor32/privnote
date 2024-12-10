@@ -28,7 +28,8 @@ const OpenNote: React.FC = () => {
   const [requiresPassword, setRequiresPassword] = useState<boolean>(false);
   const [noteEmail, setNoteEmail] = useState<string>("");
   const [isExpired, setIsExpired] = useState<boolean>(false);
-  const [loadCount, setLoadCount] = useState<number>(0);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState<boolean>(false);
+
 
   useRedirectHandlers({ revealed, noteContent, noteNotFound });
 
@@ -42,10 +43,10 @@ const OpenNote: React.FC = () => {
   
 
   useEffect(() => {
-    if (loadCount >= 1 || noteNotFound) {
+    if (hasLoadedOnce || noteNotFound) {
       window.history.pushState({}, "", "/hidden");
     }
-  }, [loadCount, noteNotFound, invalidKey]);
+  }, [hasLoadedOnce, noteNotFound, invalidKey]);
   
 
   const decryptNote = (
@@ -63,7 +64,6 @@ const OpenNote: React.FC = () => {
   };
 
   const loadNoteContent = async (noteId: string): Promise<void> => {
-    console.log(noteId);
     try {
       const { data, error } = await supabase
         .from("privnote")
@@ -75,7 +75,6 @@ const OpenNote: React.FC = () => {
         setNoteNotFound(true);
       } else {
         const encryptionKey = window.location.hash.substring(1);
-        console.log(encryptionKey);
         if (!encryptionKey) {
           setNoteNotFound(true);
           setMissingKey(true);
@@ -87,7 +86,7 @@ const OpenNote: React.FC = () => {
 
         if (!decryptedContent) {
           setInvalidKey(true);
-          setLoadCount((prevCount) => prevCount + 1);
+          setHasLoadedOnce(true);
           return;
         }
 
@@ -96,8 +95,7 @@ const OpenNote: React.FC = () => {
         setRequiresPassword(data?.note_password !== "");
         setNoteViews(data?.note_views ?? "");
         setNoteEmail(data?.note_email ?? "");
-        console.log(loadCount);
-        setLoadCount((prevCount) => prevCount + 1);
+        setHasLoadedOnce(true);
       }
     } catch (error) {
       console.error(error instanceof Error ? error.message : "Error:", error);
