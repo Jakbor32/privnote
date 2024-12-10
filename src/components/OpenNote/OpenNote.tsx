@@ -42,7 +42,7 @@ const OpenNote: React.FC = () => {
   
 
   useEffect(() => {
-    if (loadCount >= 2 || noteNotFound) {
+    if (loadCount >= 1 || noteNotFound) {
       window.history.pushState({}, "", "/hidden");
     }
   }, [loadCount, noteNotFound, invalidKey]);
