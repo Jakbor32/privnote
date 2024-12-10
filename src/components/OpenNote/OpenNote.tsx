@@ -28,6 +28,7 @@ const OpenNote: React.FC = () => {
   const [requiresPassword, setRequiresPassword] = useState<boolean>(false);
   const [noteEmail, setNoteEmail] = useState<string>("");
   const [isExpired, setIsExpired] = useState<boolean>(false);
+  const [loadCount, setLoadCount] = useState<number>(0);
 
   useRedirectHandlers({ revealed, noteContent, noteNotFound });
 
@@ -38,6 +39,14 @@ const OpenNote: React.FC = () => {
       }
     }
   }, [noteId, isExpired]);
+  
+
+  useEffect(() => {
+    if (loadCount >= 2 || noteNotFound) {
+      window.history.pushState({}, "", "/hidden");
+    }
+  }, [loadCount, noteNotFound, invalidKey]);
+  
 
   const decryptNote = (
     encryptedNote: string,
@@ -65,7 +74,6 @@ const OpenNote: React.FC = () => {
         setNoteNotFound(true);
       } else {
         const encryptionKey = window.location.hash.substring(1);
-
         if (!encryptionKey) {
           setNoteNotFound(true);
           setMissingKey(true);
@@ -77,6 +85,7 @@ const OpenNote: React.FC = () => {
 
         if (!decryptedContent) {
           setInvalidKey(true);
+          setLoadCount((prevCount) => prevCount + 1);
           return;
         }
 
@@ -85,6 +94,8 @@ const OpenNote: React.FC = () => {
         setRequiresPassword(data?.note_password !== "");
         setNoteViews(data?.note_views ?? "");
         setNoteEmail(data?.note_email ?? "");
+        
+        setLoadCount((prevCount) => prevCount + 1);
       }
     } catch (error) {
       console.error(error instanceof Error ? error.message : "Error:", error);
@@ -135,129 +146,129 @@ const OpenNote: React.FC = () => {
   }, [toasts]);
 
   return (
-    <Container>
-      <CheckNoteExpiration setIsExpired={setIsExpired} noteId={noteId ?? ""} />
-      <Header darkMode={darkMode} />
-      {revealed ? (
-        noteNotFound ? (
-          <div className="text-center">
-            <p className="pb-4 text-gray-300 ">
-              Note not found. <br />
-              Use the link below or refresh the page by clicking F5 to create a
-              new note.
+      <Container>
+        <CheckNoteExpiration setIsExpired={setIsExpired} noteId={noteId ?? ""} />
+        <Header darkMode={darkMode} />
+        {revealed ? (
+          noteNotFound ? (
+            <div className="text-center">
+              <p className="pb-4 text-gray-300">
+                Note not found. <br />
+                Use the link below or refresh the page by clicking F5 to create a
+                new note.
+              </p>
+              <a
+                href="https://privnote-app.vercel.app"
+                className="text-gray-300 underline"
+              >
+                Create new note.
+              </a>
+            </div>
+          ) : isExpired ? (
+            <div className="text-center">
+              <p className="pb-4 text-gray-300">
+                This note has expired. <br />
+                Use the link below to create a new note.
+              </p>
+              <a
+                href="https://privnote-app.vercel.app"
+                className="text-gray-300 underline"
+              >
+                Create new note.
+              </a>
+            </div>
+          ) : (
+            <OpenNoteContent
+              darkMode={darkMode}
+              noteContent={noteContent}
+              noteViews={noteViews}
+            />
+          )
+        ) : missingKey ? (
+          <div className="flex flex-col items-center w-full p-4 sm:w-4/5 md:w-3/5 xl:w-2/5 h-1/4">
+            <p
+              className={`mt-4 text-center ${
+                darkMode ? "text-yellow-500" : "text-yellow-400"
+              }`}
+            >
+              This is your link, but it's missing the decryption key:
             </p>
+            <p
+              className={`mt-2 text-center ${
+                darkMode ? "text-gray-200" : "text-gray-300"
+              }`}
+            >
+              <span>{`${window.location.origin}${window.location.pathname}`}</span>
+              <span className="text-yellow-400 animate-pulse">
+                #Your_decryption_key_here
+              </span>
+            </p>
+            <br />
             <a
               href="https://privnote-app.vercel.app"
-              className="text-gray-300 underline"
+              className={`text-gray-300 underline ${
+                darkMode ? "text-gray-200" : "text-gray-500"
+              }`}
             >
-              Create new note.
+              Create a new note.
             </a>
           </div>
-        ) : isExpired ? (
-          <div className="text-center">
-            <p className="pb-4 text-gray-300 ">
-              This note has expired. <br />
-              Use the link below to create a new note.
+        ) : invalidKey ? (
+          <div className="flex flex-col items-center w-full p-4 sm:w-4/5 md:w-3/5 xl:w-2/5 h-1/4">
+            <p
+              className={`text-xl mt-4 text-center ${
+                darkMode ? "text-red-400" : "text-red-800"
+              }`}
+            >
+              Decryption key is incorrect
             </p>
+            <br />
             <a
               href="https://privnote-app.vercel.app"
-              className="text-gray-300 underline"
+              className={`text-gray-300 underline ${
+                darkMode ? "text-gray-200" : "text-gray-500"
+              }`}
             >
-              Create new note.
+              Create a new note.
             </a>
           </div>
         ) : (
-          <OpenNoteContent
-            darkMode={darkMode}
-            noteContent={noteContent}
-            noteViews={noteViews}
-          />
-        )
-      ) : missingKey ? (
-        <div className="flex flex-col items-center w-full p-4 sm:w-4/5 md:w-3/5 xl:w-2/5 h-1/4">
-          <p
-            className={`mt-4 text-center ${
-              darkMode ? "text-yellow-500" : "text-yellow-400"
-            }`}
-          >
-            This is your link, but it's missing the decryption key:
-          </p>
-          <p
-            className={`mt-2 text-center ${
-              darkMode ? "text-gray-200" : "text-gray-300"
-            }`}
-          >
-            <span>{window.location.origin + window.location.pathname}</span>
-            <span className="text-yellow-400 animate-pulse">
-              #Your_decryption_key_here
-            </span>
-          </p>
-          <br />
-          <a
-            href="https://privnote-app.vercel.app"
-            className={`text-gray-300 underline ${
-              darkMode ? "text-gray-200" : "text-gray-500"
-            }`}
-          >
-            Create a new note.
-          </a>
-        </div>
-      ) : invalidKey ? (
-        <div className="flex flex-col items-center w-full p-4 sm:w-4/5 md:w-3/5 xl:w-2/5 h-1/4">
-          <p
-            className={`text-xl mt-4 text-center ${
-              darkMode ? "text-red-400" : "text-red-800"
-            }`}
-          >
-            Decryption key is incorrect
-          </p>
-          <br />
-          <a
-            href="https://privnote-app.vercel.app"
-            className={`text-gray-300 underline ${
-              darkMode ? "text-gray-200" : "text-gray-500"
-            }`}
-          >
-            Create a new note.
-          </a>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center w-full p-4 sm:w-4/5 md:w-3/5 xl:w-2/5 h-1/4">
-          {requiresPassword ? (
-            <PasswordInput
-              password={password}
-              setPassword={setPassword}
-              revealNote={revealNote}
-              darkMode={darkMode}
-            />
-          ) : (
-            <RevealButton revealNote={revealNote} />
-          )}
-          <p className="mt-4 text-center text-gray-300 animate-pulse">
-            {isExpired
-              ? "You can no longer see this note"
-              : noteViews
-              ? `You can only view this note ${noteViews} ${
-                  noteViews === "1" ? "time" : "times"
-                }`
-              : "You can no longer see this note"}
-          </p>
-        </div>
-      )}
-      <Footer darkMode={darkMode} />
-      <Toaster
-        position="top-left"
-        reverseOrder={true}
-        toastOptions={{
-          style: {
-            borderRadius: "10px",
-            background: darkMode ? "#333" : "#ABA",
-            color: "#fff",
-          },
-        }}
-      />
-    </Container>
-  );
-};
+          <div className="flex flex-col items-center w-full p-4 sm:w-4/5 md:w-3/5 xl:w-2/5 h-1/4">
+            {requiresPassword ? (
+              <PasswordInput
+                password={password}
+                setPassword={setPassword}
+                revealNote={revealNote}
+                darkMode={darkMode}
+              />
+            ) : (
+              <RevealButton revealNote={revealNote} />
+            )}
+            <p className="mt-4 text-center text-gray-300 animate-pulse">
+              {isExpired
+                ? "You can no longer see this note"
+                : noteViews
+                ? `You can only view this note ${noteViews} ${
+                    noteViews === "1" ? "time" : "times"
+                  }`
+                : "You can no longer see this note"}
+            </p>
+          </div>
+        )}
+        <Footer darkMode={darkMode} />
+        <Toaster
+          position="top-left"
+          reverseOrder={true}
+          toastOptions={{
+            style: {
+              borderRadius: "10px",
+              background: darkMode ? "#333" : "#ABA",
+              color: "#fff",
+            },
+          }}
+        />
+      </Container>
+    );
+  };
 
 export default OpenNote;
