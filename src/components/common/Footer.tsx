@@ -17,7 +17,7 @@ const Footer: React.FC<NoteFooterProps> = ({ darkMode }) => (
     >
       <FaGithub size="20" />
     </a>
-    <p>© 2024 Jakub Borowy</p>
+    <p>© 2025 Jakub Borowy</p>
   </footer>
 );
 
