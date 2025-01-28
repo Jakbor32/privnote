@@ -16,7 +16,7 @@ const Textarea: FunctionComponent<TextareaProps> = ({
       darkMode
         ? "bg-[#465555] border-[#465555] text-gray-200"
         : "bg-[#e7ed67] border-[#e7ed67]"
-    } resize focus:outline-none border-4`}
+    } resize focus:outline-none border-4 max-w-full max-h-96 overflow-auto`}
     placeholder="Write your note here..."
     value={note}
     onChange={(e) => onChange(e.target.value)}

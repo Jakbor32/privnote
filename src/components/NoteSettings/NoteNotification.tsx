@@ -45,7 +45,11 @@ const NoteNotification: React.FC<NoteNotificationProps> = ({
         value={email}
         onChange={onEmailChange}
         placeholder="your e-mail here"
-        className="w-full p-2 text-black border rounded"
+        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+          darkMode
+            ? "text-white bg-stone-800 border-gray-700"
+            : "text-gray-700 bg-white border-gray-300"
+        }`}
       />
       <div>
         <button
