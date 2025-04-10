@@ -55,7 +55,6 @@ const Buttons: FunctionComponent<ButtonsProps> = ({
       onClick={onOpenUploadFile}
       >
       Upload file
-      <span className="absolute block pl-2 pr-2 text-[.75rem] bg-yellow-600 rounded-full -right-3 -top-2 animate-pulse">NEW</span>
     </button>
   </div>
 );
