@@ -2,11 +2,13 @@ import React, { ChangeEvent, useState } from "react";
 import { IoMdTime, IoMdNotifications } from "react-icons/io";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
+import { HiKey } from "react-icons/hi";
 import { useDarkMode } from "../DarkMode";
 import NoteTime from "../NoteSettings/NoteTime";
 import NotePassword from "../NoteSettings/NotePassword";
 import NoteView from "../NoteSettings/NoteView";
 import NoteNotification from "../NoteSettings/NoteNotification";
+import PasswordGenerator from "../NoteSettings/PasswordGenerator";
 
 interface AdvancedModalProps {
   isOpen: boolean;
@@ -28,11 +30,10 @@ const AdvancedModal: React.FC<AdvancedModalProps> = ({
   handleChangeTime,
   handleSavePassword,
   handleSaveEmail,
-  
 }) => {
   const { darkMode } = useDarkMode();
   const [activeComponent, setActiveComponent] = useState<
-    "time" | "password" | "view" | "notification"
+    "time" | "password" | "view" | "notification" | "generator"
   >("time");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -57,8 +58,6 @@ const AdvancedModal: React.FC<AdvancedModalProps> = ({
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
   };
-
-  
 
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4">
@@ -120,6 +119,17 @@ const AdvancedModal: React.FC<AdvancedModalProps> = ({
             }`}
             onClick={() => setActiveComponent("notification")}
           />
+          <HiKey
+            size={20}
+            className={`cursor-pointer ${
+              activeComponent === "generator"
+                ? darkMode
+                  ? "shadow-stone-100 scale-125"
+                  : "shadow-gray-100 scale-125"
+                : "opacity-25"
+            }`}
+            onClick={() => setActiveComponent("generator")}
+          />
         </div>
         {activeComponent === "time" ? (
           <NoteTime
@@ -140,14 +150,16 @@ const AdvancedModal: React.FC<AdvancedModalProps> = ({
             onSelect={handleNoteViewChange}
             onClose={onClose}
           />
-        ) : (
+        ) : activeComponent === "notification" ? (
           <NoteNotification
             email={email}
             onEmailChange={handleEmailChange}
             onSave={handleSaveEmail}
             onClose={onClose}
           />
-        )}
+        ) : activeComponent === "generator" ? (
+          <PasswordGenerator defaultLength={12} onClose={onClose} />
+        ) : null}
       </div>
     </div>
   );
