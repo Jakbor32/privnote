@@ -74,7 +74,7 @@ const PasswordGenerator: React.FC<PasswordGeneratorProps> = ({
         <input
           readOnly
           value={password}
-          className={`flex-1 px-3 py-2 border rounded-md shadow-sm focus:outline-none ${
+          className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none ${
             darkMode
               ? "text-white bg-stone-800 border-gray-700"
               : "text-gray-700 bg-white border-gray-300"
