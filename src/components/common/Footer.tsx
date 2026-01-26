@@ -5,6 +5,8 @@ interface NoteFooterProps {
   darkMode: boolean;
 }
 
+const year = new Date().getFullYear();
+
 const Footer: React.FC<NoteFooterProps> = ({ darkMode }) => (
   <footer
     className={`fixed text-center bottom-1 flex items-center gap-2 ${
@@ -17,7 +19,7 @@ const Footer: React.FC<NoteFooterProps> = ({ darkMode }) => (
     >
       <FaGithub size="20" />
     </a>
-    <p>© 2025 Jakub Borowy</p>
+    <p>© {year} Jakub Borowy</p>
   </footer>
 );
 
