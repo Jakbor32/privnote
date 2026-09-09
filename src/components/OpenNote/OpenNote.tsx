@@ -26,6 +26,7 @@ const OpenNote: React.FC = () => {
   const [requiresPassword, setRequiresPassword] = useState<boolean>(false);
   const [isExpired, setIsExpired] = useState<boolean>(false);
   const [hasLoadedOnce, setHasLoadedOnce] = useState<boolean>(false);
+  const [encryptionKey, setEncryptionKey] = useState<string>("");
 
   useRedirectHandlers({ revealed, noteContent, noteNotFound });
 
@@ -77,13 +78,14 @@ const OpenNote: React.FC = () => {
         return;
       }
 
-      const encryptionKey = window.location.hash.substring(1);
-      if (!encryptionKey) {
+      const keyFromHash = window.location.hash.substring(1);
+      if (!keyFromHash) {
         setNoteNotFound(true);
         setMissingKey(true);
         setHasLoadedOnce(true);
         return;
       }
+      setEncryptionKey(keyFromHash);
 
       setRequiresPassword(meta.requires_password);
       setNoteViews(meta.note_views ?? "");
@@ -125,7 +127,6 @@ const OpenNote: React.FC = () => {
         return;
       }
 
-      const encryptionKey = window.location.hash.substring(1);
       const decryptedContent = decryptNote(result.value ?? "", encryptionKey);
 
       if (!decryptedContent) {
