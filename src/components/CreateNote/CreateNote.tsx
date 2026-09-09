@@ -9,11 +9,6 @@ import Header from "../common/Header";
 import Container from "../common/Container";
 import CryptoJS from "crypto-js";
 
-interface NoteData {
-  note_uid: string;
-  value: string;
-}
-
 function CreateNote(): JSX.Element {
   const { darkMode } = useDarkMode();
   const [note, setNote] = useState<string>("");
@@ -37,27 +32,20 @@ function CreateNote(): JSX.Element {
         encryptionKey
       ).toString();
 
-      const { data, error } = await supabase
-        .from("privnote")
-        .insert([
-          {
-            value: encryptedNote,
-            note_time: `${selectedTime}`,
-            note_password: password,
-            note_views: `${selectedViews}`,
-            note_email: email,
-          },
-        ])
-        .select("note_uid")
-        .single();
+      const { data: newNoteUid, error } = await supabase.rpc("create_note", {
+        p_value: encryptedNote,
+        p_note_time: selectedTime,
+        p_note_password: password,
+        p_note_views: selectedViews,
+        p_note_email: email,
+      });
 
-      if (error) {
+      if (error || !newNoteUid) {
         console.error(error);
+        toast.error("Failed to create note!");
       } else {
         //******Link with the encryption key in the URL hash******
-        const noteLink = `${window.location.origin}/${
-          (data as NoteData).note_uid
-        }#${encryptionKey}`;
+        const noteLink = `${window.location.origin}/${newNoteUid}#${encryptionKey}`;
         setNoteId(noteLink);
         setIsNoteCreated(true);
         setNote("");

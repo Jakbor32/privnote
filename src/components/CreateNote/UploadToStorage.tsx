@@ -9,6 +9,7 @@ import ExpirationSelector from "../UploadToStorage/ExpirationSelector";
 import UploadButton from "../UploadToStorage/UploadButton";
 import DiscardButton from "../UploadToStorage/DiscardButton";
 import CopyFileLinkButton from "../UploadToStorage/CopyFileLinkButton";
+import { isValidKey, removePolishChars } from "../../utils/isValidKey";
 
 interface UploadToStorageProps {
   isOpen: boolean;
@@ -63,10 +64,16 @@ const UploadToStorage: React.FC<UploadToStorageProps> = ({
       return;
     }
 
+    if (!isValidKey(file.name)) {
+      toast.error("File name contains unsupported characters.");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const uniqueId = uuidv4();
-      const newFileName = `${uniqueId}/${file.name}`;
+      const safeFileName = removePolishChars(file.name);
+      const newFileName = `${uniqueId}/${safeFileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("file_storage")

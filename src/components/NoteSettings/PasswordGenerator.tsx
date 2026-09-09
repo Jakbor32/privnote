@@ -19,12 +19,13 @@ const PasswordGenerator: React.FC<PasswordGeneratorProps> = ({
   const [password, setPassword] = useState("");
 
   const generatePassword = useCallback(() => {
-    let result = "";
     const charsLength = PASSWORD_CHARS.length;
+    const randomValues = new Uint32Array(length);
+    crypto.getRandomValues(randomValues);
 
+    let result = "";
     for (let i = 0; i < length; i++) {
-      const idx = Math.floor(Math.random() * charsLength);
-      result += PASSWORD_CHARS[idx];
+      result += PASSWORD_CHARS[randomValues[i] % charsLength];
     }
 
     setPassword(result);

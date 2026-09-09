@@ -12,7 +12,6 @@ import PasswordInput from "./PasswordInput";
 import RevealButton from "./RevealButton";
 import Container from "../common/Container";
 import { useRedirectHandlers } from "../../utils/useRedirectHandlers";
-import CheckNoteExpiration from "./CheckNoteExpiration";
 
 const OpenNote: React.FC = () => {
   const { noteId } = useParams<Record<string, string | undefined>>();
@@ -23,10 +22,8 @@ const OpenNote: React.FC = () => {
   const [invalidKey, setInvalidKey] = useState<boolean>(false);
   const [missingKey, setMissingKey] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
-  const [storedPassword, setStoredPassword] = useState<string>("");
   const [noteViews, setNoteViews] = useState<string>("");
   const [requiresPassword, setRequiresPassword] = useState<boolean>(false);
-  const [noteEmail, setNoteEmail] = useState<string>("");
   const [isExpired, setIsExpired] = useState<boolean>(false);
   const [hasLoadedOnce, setHasLoadedOnce] = useState<boolean>(false);
 
@@ -34,11 +31,9 @@ const OpenNote: React.FC = () => {
 
   useEffect(() => {
     if (noteId) {
-      if (!isExpired) {
-        loadNoteContent(noteId);
-      }
+      loadNoteMeta(noteId);
     }
-  }, [noteId, isExpired]);
+  }, [noteId]);
 
   useEffect(() => {
     if (hasLoadedOnce || noteNotFound) {
@@ -60,40 +55,39 @@ const OpenNote: React.FC = () => {
     }
   };
 
-  const loadNoteContent = async (noteId: string): Promise<void> => {
+  // Only fetches metadata needed to render the page before any password is
+  // entered or a view is consumed (never note_password/note_email/value --
+  // see supabase/migrations/0001_privnote_rls_and_rpc.sql).
+  const loadNoteMeta = async (id: string): Promise<void> => {
     try {
-      const { data, error } = await supabase
-        .from("privnote")
-        .select("value, note_password, note_views, note_email")
-        .eq("note_uid", noteId)
-        .single();
+      const { data, error } = await supabase.rpc("get_note_meta", {
+        p_note_uid: id,
+      });
+      const meta = data?.[0];
 
-      if (error) {
+      if (error || !meta || !meta.found) {
         setNoteNotFound(true);
-      } else {
-        const encryptionKey = window.location.hash.substring(1);
-        if (!encryptionKey) {
-          setNoteNotFound(true);
-          setMissingKey(true);
-          return;
-        }
-
-        // ******Decrypt the note content******
-        const decryptedContent = decryptNote(data?.value ?? "", encryptionKey);
-
-        if (!decryptedContent) {
-          setInvalidKey(true);
-          setHasLoadedOnce(true);
-          return;
-        }
-
-        setNoteContent(decryptedContent);
-        setStoredPassword(data?.note_password ?? "");
-        setRequiresPassword(data?.note_password !== "");
-        setNoteViews(data?.note_views ?? "");
-        setNoteEmail(data?.note_email ?? "");
         setHasLoadedOnce(true);
+        return;
       }
+
+      if (meta.is_expired) {
+        setIsExpired(true);
+        setHasLoadedOnce(true);
+        return;
+      }
+
+      const encryptionKey = window.location.hash.substring(1);
+      if (!encryptionKey) {
+        setNoteNotFound(true);
+        setMissingKey(true);
+        setHasLoadedOnce(true);
+        return;
+      }
+
+      setRequiresPassword(meta.requires_password);
+      setNoteViews(meta.note_views ?? "");
+      setHasLoadedOnce(true);
     } catch (error) {
       console.error(error instanceof Error ? error.message : "Error:", error);
     }
@@ -103,42 +97,46 @@ const OpenNote: React.FC = () => {
     try {
       if (!noteId) return;
 
-      const { data, error: fetchError } = await supabase
-        .from("privnote")
-        .select("note_views, note_email, note_password")
-        .eq("note_uid", noteId)
-        .single();
+      const { data, error } = await supabase.rpc("reveal_note", {
+        p_note_uid: noteId,
+        p_password: password,
+      });
+      const result = data?.[0];
 
-      if (fetchError || !data) {
+      if (error || !result) {
+        toast.error("Failed to reveal note!");
+        return;
+      }
+
+      if (result.status === "invalid_password") {
+        toast.error("Incorrect password!");
+        return;
+      }
+
+      if (result.status === "not_found") {
         setNoteNotFound(true);
         setRevealed(true);
         return;
       }
 
-      const currentViews = parseInt(data.note_views);
-      const notePassword = storedPassword;
-
-      if (requiresPassword && password !== notePassword) {
-        toast.error("Incorrect password!");
+      if (result.status === "expired") {
+        setIsExpired(true);
+        setRevealed(true);
         return;
       }
 
-      if (currentViews <= 1) {
-        await supabase.from("privnote").delete().eq("note_uid", noteId);
-      } else {
-        await supabase
-          .from("privnote")
-          .update({
-            note_views: (currentViews - 1).toString(),
-            note_email: "",
-          })
-          .eq("note_uid", noteId);
+      const encryptionKey = window.location.hash.substring(1);
+      const decryptedContent = decryptNote(result.value ?? "", encryptionKey);
 
-        setNoteViews((currentViews - 1).toString());
+      if (!decryptedContent) {
+        setInvalidKey(true);
+        setRevealed(true);
+        return;
       }
 
+      setNoteContent(decryptedContent);
       setRevealed(true);
-      sendEmail(noteEmail);
+      sendEmail(result.note_email ?? "");
     } catch (error) {
       console.error(error instanceof Error ? error.message : error);
       toast.error("Failed to reveal note!");
@@ -157,44 +155,8 @@ const OpenNote: React.FC = () => {
 
   return (
     <Container>
-      <CheckNoteExpiration setIsExpired={setIsExpired} noteId={noteId ?? ""} />
       <Header darkMode={darkMode} />
-      {revealed ? (
-        noteNotFound ? (
-          <div className="text-center">
-            <p className="pb-4 text-gray-300">
-              Note not found. <br />
-              Use the link below or refresh the page by clicking F5 to create a
-              new note.
-            </p>
-            <a
-              href="https://privnote-app.vercel.app"
-              className="text-gray-300 underline"
-            >
-              Create new note.
-            </a>
-          </div>
-        ) : isExpired ? (
-          <div className="text-center">
-            <p className="pb-4 text-gray-300">
-              This note has expired. <br />
-              Use the link below to create a new note.
-            </p>
-            <a
-              href="https://privnote-app.vercel.app"
-              className="text-gray-300 underline"
-            >
-              Create new note.
-            </a>
-          </div>
-        ) : (
-          <OpenNoteContent
-            darkMode={darkMode}
-            noteContent={noteContent}
-            noteViews={noteViews}
-          />
-        )
-      ) : missingKey ? (
+      {missingKey ? (
         <div className="flex flex-col items-center w-full p-4 sm:w-4/5 md:w-3/5 xl:w-2/5 h-1/4">
           <p
             className={`mt-4 text-center ${
@@ -223,26 +185,7 @@ const OpenNote: React.FC = () => {
             Create a new note.
           </a>
         </div>
-      ) : invalidKey ? (
-        <div className="flex flex-col items-center w-full p-4 sm:w-4/5 md:w-3/5 xl:w-2/5 h-1/4">
-          <p
-            className={`text-xl mt-4 text-center ${
-              darkMode ? "text-red-400" : "text-red-800"
-            }`}
-          >
-            Decryption key is incorrect
-          </p>
-          <br />
-          <a
-            href="https://privnote-app.vercel.app"
-            className={`text-gray-300 underline ${
-              darkMode ? "text-gray-200" : "text-gray-500"
-            }`}
-          >
-            Create a new note.
-          </a>
-        </div>
-      ) : (
+      ) : !revealed ? (
         <div className="flex flex-col items-center w-full p-4 sm:w-4/5 md:w-3/5 xl:w-2/5 h-1/4">
           {requiresPassword ? (
             <PasswordInput
@@ -264,6 +207,58 @@ const OpenNote: React.FC = () => {
               : "You can no longer see this note"}
           </p>
         </div>
+      ) : noteNotFound ? (
+        <div className="text-center">
+          <p className="pb-4 text-gray-300">
+            Note not found. <br />
+            Use the link below or refresh the page by clicking F5 to create a
+            new note.
+          </p>
+          <a
+            href="https://privnote-app.vercel.app"
+            className="text-gray-300 underline"
+          >
+            Create new note.
+          </a>
+        </div>
+      ) : isExpired ? (
+        <div className="text-center">
+          <p className="pb-4 text-gray-300">
+            This note has expired. <br />
+            Use the link below to create a new note.
+          </p>
+          <a
+            href="https://privnote-app.vercel.app"
+            className="text-gray-300 underline"
+          >
+            Create new note.
+          </a>
+        </div>
+      ) : invalidKey ? (
+        <div className="flex flex-col items-center w-full p-4 sm:w-4/5 md:w-3/5 xl:w-2/5 h-1/4">
+          <p
+            className={`text-xl mt-4 text-center ${
+              darkMode ? "text-red-400" : "text-red-800"
+            }`}
+          >
+            Decryption key is incorrect
+          </p>
+          <br />
+          <a
+            href="https://privnote-app.vercel.app"
+            className={`text-gray-300 underline ${
+              darkMode ? "text-gray-200" : "text-gray-500"
+            }`}
+          >
+            Create a new note.
+          </a>
+        </div>
+      ) : (
+        <OpenNoteContent
+          darkMode={darkMode}
+          noteContent={noteContent}
+          noteViews={noteViews}
+        />
       )}
       <Footer darkMode={darkMode} />
       <Toaster
