@@ -14,10 +14,9 @@ const DestroyNoteButton: React.FC<DestroyNoteButtonProps> = ({
   const handleDestroyNote = async (): Promise<void> => {
     try {
       const extractedNoteId = grabLink.split("/").pop()?.split("#")[0];
-      const { error } = await supabase
-        .from("privnote")
-        .delete()
-        .eq("note_uid", extractedNoteId);
+      const { error } = await supabase.rpc("destroy_note", {
+        p_note_uid: extractedNoteId,
+      });
       if (error) {
         throw new Error(error.message);
       }
