@@ -58,13 +58,13 @@ create or replace function public._privnote_ttl(note_time text)
 returns interval
 language sql
 immutable
-as $$
+as $ttl$
   select case right(note_time, 1)
     when 'h' then (left(note_time, -1))::int * interval '1 hour'
     when 'm' then (left(note_time, -1))::int * interval '1 minute'
     else interval '0'
   end;
-$$;
+$ttl$;
 
 -- Creates a note anonymously (same UX as today) and hands back only the
 -- new note_uid -- never anything the caller just wrote back via a SELECT
@@ -81,7 +81,7 @@ returns uuid
 language plpgsql
 security definer
 set search_path = public
-as $$
+as $create_note$
 declare
   v_note_uid uuid;
 begin
@@ -97,7 +97,7 @@ begin
 
   return v_note_uid;
 end;
-$$;
+$create_note$;
 
 revoke all on function public.create_note(text, text, text, text, text) from public;
 grant execute on function public.create_note(text, text, text, text, text) to anon;
@@ -116,7 +116,7 @@ returns table (
 language plpgsql
 security definer
 set search_path = public
-as $$
+as $get_note_meta$
 declare
   r record;
 begin
@@ -133,7 +133,7 @@ begin
     r.note_views,
     (now() - r.created_at) > public._privnote_ttl(r.note_time);
 end;
-$$;
+$get_note_meta$;
 
 revoke all on function public.get_note_meta(uuid) from public;
 grant execute on function public.get_note_meta(uuid) to anon;
@@ -152,7 +152,7 @@ returns table (
 language plpgsql
 security definer
 set search_path = public
-as $$
+as $reveal_note$
 declare
   r record;
 begin
@@ -185,7 +185,7 @@ begin
 
   return query select 'ok'::text, r.value, r.note_email;
 end;
-$$;
+$reveal_note$;
 
 revoke all on function public.reveal_note(uuid, text) from public;
 grant execute on function public.reveal_note(uuid, text) to anon;
